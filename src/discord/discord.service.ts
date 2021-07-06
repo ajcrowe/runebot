@@ -46,8 +46,8 @@ export class DiscordService {
     const { prefix } = this.configService.discord
     this._client.on("message", async (message) => {
       if (message.author.bot) return;
-      if (message.channel.id != '843121547358109700') return;
       if (!message.content.startsWith(prefix)) return;
+      //if (message.channel.id != '843121547358109700') return;
 
       const commandBody = message.content.slice(prefix.length);
       const args = commandBody.split(' ');
