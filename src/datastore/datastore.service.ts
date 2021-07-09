@@ -40,6 +40,7 @@ export class DataStoreService {
         traitCount: wizardJson.traitCount,
         backgroundColor: color,
         maxAffinity: wizardJson.maxAffinity,
+        affinities: wizardJson.affinities,
       }
     }  
     catch (error) {
@@ -75,6 +76,12 @@ export class DataStoreService {
     fields.push({
       name: `${rarityName} Affinity`,
       value: `${wizard.maxAffinity} (${(rarity / 100)}%)`,
+      inline: true,
+    });
+
+    fields.push({
+      name: `Traits With Affinity`,
+      value: `${wizard.affinities[wizard.maxAffinity]}/${wizard.traitCount - 1}`,
       inline: true,
     });
 
