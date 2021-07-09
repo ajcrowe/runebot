@@ -9,6 +9,7 @@ export interface Wizard {
   traitCount: number,
   backgroundColor: string,
   maxAffinity: number,
+  affinities: {},
 }
 
 /**
