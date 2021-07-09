@@ -31,7 +31,6 @@ export class DiscordService {
       this.sendSale();
     });
     this.channelWatcher();
-
   }
 
   /*
