@@ -13,6 +13,7 @@ export class DiscordService {
   private readonly _rangeRegex = new RegExp(`^${toRegexRange('1', '10000')}$`);
 
   protected _salesChannel: TextChannel;
+  protected _recentTransactions: Array<String>;
 
   get name(): string {
     return 'DiscordService';
@@ -25,7 +26,9 @@ export class DiscordService {
     const { token, salesChannelId } = this.configService.discord
     this._client.login(token);
     this._client.on('ready', async () => {
-      //this._salesChannel = await this._client.channels.fetch(salesChannelId) as TextChannel;
+      this._salesChannel = await this._client.channels.fetch(salesChannelId) as TextChannel;
+      this._recentTransactions = [];
+      this.sendSale();
     });
     this.channelWatcher();
   }
@@ -34,9 +37,41 @@ export class DiscordService {
    * Send sale notification to sale channel
    */
 
-  public async sendSale(message: MessageEmbed): Promise<void> {
+  public async sendSale(): Promise<void> {
     try {
-      //this._salesChannel.send();
+      const timestamp = new Date(Date.now() - (5000 * 60));
+      const fetch = require('node-fetch');
+      const url = `https://api.opensea.io/api/v1/events?collection_slug=forgottenruneswizardscult&event_type=successful&only_opensea=false&offset=0&limit=20&occurred_after=${timestamp.toISOString()}`;
+      const options = {method: 'GET', headers: {Accept: 'application/json'}};
+
+      var response;
+
+      fetch(url, options)
+        .then(res => res.json())
+        .then(json => {
+          const wizards = json.asset_events.reverse();
+          wizards.forEach((event) => { 
+            if (this._recentTransactions.indexOf(event.transaction.transaction_hash) == -1) {
+              const embed = new MessageEmbed()
+            .setColor(event.asset.backgroundColor)
+            .setTitle(`✨ Wizard #${event.asset.token_id} sold for ${(event.total_price / 1000000000000000000)} ${event.payment_token.symbol}!`)
+            .setDescription(`${event.asset.name}`)
+            .setURL(`${this.configService.wizards.openSeaBaseURI}/${event.asset.token_id}`)
+            .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${event.asset.token_id}.png`);
+
+            this._salesChannel.send(embed);
+            this._recentTransactions.push(event.transaction.transaction_hash);
+
+            if (this._recentTransactions.length > 5) {
+              this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 5, 0))
+            }
+        }
+           } );
+        })
+        .catch(err => console.error('error:' + err));
+
+      setTimeout(this.sendSale, 10000);
+
     } catch (err) {
       this._logger.error(err);
     }
