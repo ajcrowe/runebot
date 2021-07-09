@@ -65,7 +65,6 @@ export class DiscordService {
             if (this._recentTransactions.length > 5) {
               this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 5, 0))
             }
-            console.log(this._recentTransactions);
         }
            } );
         })
