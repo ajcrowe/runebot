@@ -52,4 +52,11 @@ export class AppConfigService {
   public get isDevelopment(): boolean {
     return process.env.APP_ENVIRONMENT == 'development' ? true : false
   }
+
+  /**
+   * Development channel
+   */
+  //public get devChannel(); number {
+  //  return process.env.DISCORD_DEVELOPMENT_CHANNEL
+  //}
 }

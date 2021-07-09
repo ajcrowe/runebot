@@ -21,8 +21,8 @@ export class DataStoreService {
     try {
       const wizardJson = data.wizards[id], traits = [];
       let color: string;
-      for (const trait of wizardJson.traits) {
-        const [ name, value ] = trait.split(': ', 2);
+      for (const trait in wizardJson.traits) {
+        const [ name, value ] = wizardJson.traits[trait].split(': ', 2);
         if (name === 'background') {
           color = WizardBackground[value]
         }
