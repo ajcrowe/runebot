@@ -27,6 +27,7 @@
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/schedule": "^0.4.0",
     "@nestjs/terminus": "^7.0.1",
+    "@types/node-fetch": "^2.5.11",
     "axios": "^0.21.1",
     "cron": "^1.8.2",
     "discord.js": "^12.5.3",

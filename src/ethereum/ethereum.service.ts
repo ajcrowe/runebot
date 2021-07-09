@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocketProvider } from '@ethersproject/providers';
-import { ethers, Contract } from 'ethers';
 import { AppConfigService } from '../config';
+import { ethers, Contract } from 'ethers';
 
 @Injectable()
 export class EthereumService {
@@ -14,8 +14,8 @@ export class EthereumService {
   }
 
   constructor(protected readonly configService: AppConfigService) {
-    const { url, network } = this.configService.ethereum;
-    this.provider = new WebSocketProvider(url, network);
+    //const { url, network } = this.configService.ethereum;
+    //this.provider = new WebSocketProvider(url, network);
     //this.contract = new ethers.Contract(
     //  this.configService.wizards.tokenContract,
     //  Wizards.abi,

@@ -3,16 +3,16 @@ import { AppService } from './app.service';
 import { HealthModule } from './health';
 import { TwitterModule } from './twitter';
 import { DiscordModule } from './discord/discord.module';
+import { ScheduleModule } from '@nestjs/schedule';
 //import { EthereumModule } from './ethereum';
-//import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     HealthModule,
     TwitterModule,
     DiscordModule,
+    ScheduleModule.forRoot(),
     //EthereumModule,
-    //ScheduleModule.forRoot(),
   ],
   providers: [AppService],
 })

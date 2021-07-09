@@ -4,6 +4,7 @@ import Discord, { TextChannel, MessageEmbed } from 'discord.js';
 import toRegexRange from 'to-regex-range';
 import { Wizard } from 'src/types';
 import { DataStoreService } from '../datastore';
+import fetch from 'node-fetch';
 
 
 @Injectable()
@@ -13,7 +14,8 @@ export class DiscordService {
   private readonly _rangeRegex = new RegExp(`^${toRegexRange('1', '10000')}$`);
 
   protected _salesChannel: TextChannel;
-  protected _recentTransactions: Array<String>;
+  protected _tradingChannel: TextChannel;
+  protected _recentTransactions: Array<string>;
 
   get name(): string {
     return 'DiscordService';
@@ -23,12 +25,12 @@ export class DiscordService {
     protected readonly configService: AppConfigService,
     protected readonly dataStoreService: DataStoreService
   ) {
-    const { token, salesChannelId } = this.configService.discord
+    const { token, salesChannelId, tradingChannelId } = this.configService.discord
     this._client.login(token);
     this._client.on('ready', async () => {
       this._salesChannel = await this._client.channels.fetch(salesChannelId) as TextChannel;
+      this._tradingChannel = await this._client.channels.fetch(tradingChannelId) as TextChannel;
       this._recentTransactions = [];
-      this.sendSale();
     });
     this.channelWatcher();
   }
@@ -37,40 +39,56 @@ export class DiscordService {
    * Send sale notification to sale channel
    */
 
-  public async sendSale(): Promise<void> {
+  public async checkSales(): Promise<void> {
     try {
-      const timestamp = new Date(Date.now() - (5000 * 60));
-      const fetch = require('node-fetch');
-      const url = `https://api.opensea.io/api/v1/events?collection_slug=forgottenruneswizardscult&event_type=successful&only_opensea=false&offset=0&limit=20&occurred_after=${timestamp.toISOString()}`;
+      const timestamp = new Date(Date.now() - (120 * 1000));
+      const url = `https://api.opensea.io/api/v1/events?collection_slug=${this.configService.wizards.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=20&occurred_after=${timestamp.toISOString()}`;
       const options = {method: 'GET', headers: {Accept: 'application/json'}};
 
-      var response;
-
-      fetch(url, options)
-        .then(res => res.json())
-        .then(json => {
-          const wizards = json.asset_events.reverse();
-          wizards.forEach((event) => { 
-            if (this._recentTransactions.indexOf(event.transaction.transaction_hash) == -1) {
-              const embed = new MessageEmbed()
-            .setColor(event.asset.backgroundColor)
-            .setTitle(`✨ Wizard #${event.asset.token_id} sold for ${(event.total_price / 1000000000000000000)} ${event.payment_token.symbol}!`)
-            .setDescription(`${event.asset.name}`)
-            .setURL(`${this.configService.wizards.openSeaBaseURI}/${event.asset.token_id}`)
-            .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${event.asset.token_id}.png`);
+      try {
+        const response = await fetch(url, options)
+        const sales = await response.json()
+        for (const sale of sales.asset_events) {
+          if (!this._recentTransactions.includes(sale.transaction.transaction_hash)) {
+            const embed = new MessageEmbed()
+              .setColor(sale.asset.backgroundColor)
+              .setTitle(`New Sale: ${sale.asset.name}`)
+              .setURL(`${this.configService.wizards.openSeaBaseURI}/${sale.asset.token_id}`)
+              .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${sale.asset.token_id}.png`)
+              .addFields([
+                {
+                  name: 'Serial',
+                  value: `${sale.asset.token_id}`
+                },
+                {
+                  name: 'Amount',
+                  value: `${(sale.total_price / 1000000000000000000)} ${sale.payment_token.symbol} ($${((sale.total_price / 1000000000000000000) * sale.payment_token.usd_price).toFixed(2)} USD)`,
+                  inline: false
+                },
+                {
+                  name: 'Seller',
+                  value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) (${sale.seller.user.username})`,
+                  inline: true,
+                },
+                {
+                  name: 'Buyer',
+                  value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) (${sale.winner_account.user.username})`,
+                  inline: true
+                },
+              ])
 
             this._salesChannel.send(embed);
-            this._recentTransactions.push(event.transaction.transaction_hash);
+            this._tradingChannel.send(embed);
+            this._recentTransactions.push(sale.transaction.transaction_hash);
 
-            if (this._recentTransactions.length > 5) {
-              this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 5, 0))
+            if (this._recentTransactions.length > 100) {
+              this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
             }
+          }
         }
-           } );
-        })
-        .catch(err => console.error('error:' + err));
-
-      setTimeout(this.sendSale, 10000);
+      } catch(error) {
+        this._logger.error(`error fetching sales from OpenSea: ${error}`);
+      }
 
     } catch (err) {
       this._logger.error(err);

@@ -9,7 +9,7 @@ export interface Wizard {
   traitCount: number,
   backgroundColor: string,
   maxAffinity: number,
-  affinities: {},
+  affinities: Record<string, unknown>,
 }
 
 /**
@@ -91,5 +91,5 @@ export interface DailyTweet {
  * Cronjob names
  */
 export enum CronJobs {
-  WIZARD_TWEET = 'Wizard Tweet',
+  SALES_CHECKER = 'Sales Checker',
 }
