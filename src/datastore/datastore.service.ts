@@ -73,7 +73,6 @@ export class DataStoreService {
 
     rarity = data.affinityOccurences[wizard.maxAffinity];
     rarityName = this.getRarityConfig(rarity).name;
-
     fields.push({
       name: `${rarityName} Affinity`,
       value: `${wizard.maxAffinity} (${(rarity / 100)}%)`,
