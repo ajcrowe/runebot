@@ -29,7 +29,7 @@ export class DataStoreService {
         traits.push({
           name: name.charAt(0).toUpperCase() + name.substring(1),
           value: value,
-          rarity: data.traitOccurences[trait],
+          rarity: data.traitOccurences[wizardJson.traits[trait]],
         })
       }
       return {
@@ -75,13 +75,7 @@ export class DataStoreService {
     rarityName = this.getRarityConfig(rarity).name;
     fields.push({
       name: `${rarityName} Affinity`,
-      value: `${wizard.maxAffinity} (${(rarity / 100)}%)`,
-      inline: true,
-    });
-
-    fields.push({
-      name: `Traits With Affinity`,
-      value: `${wizard.affinities[wizard.maxAffinity]}/${wizard.traitCount - 1}`,
+      value: `${wizard.maxAffinity} (${wizard.affinities[wizard.maxAffinity]}/${wizard.traitCount - 1} traits)`,
       inline: true,
     });
 
