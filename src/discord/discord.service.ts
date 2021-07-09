@@ -13,6 +13,7 @@ export class DiscordService {
   private readonly _rangeRegex = new RegExp(`^${toRegexRange('1', '10000')}$`);
 
   protected _salesChannel: TextChannel;
+  protected _recentTransactions: Array<String>;
 
   get name(): string {
     return 'DiscordService';
@@ -26,6 +27,7 @@ export class DiscordService {
     this._client.login(token);
     this._client.on('ready', async () => {
       this._salesChannel = await this._client.channels.fetch(salesChannelId) as TextChannel;
+      this._recentTransactions = [];
       this.sendSale();
     });
     this.channelWatcher();
@@ -48,19 +50,24 @@ export class DiscordService {
       fetch(url, options)
         .then(res => res.json())
         .then(json => {
-          console.log(json);
           const wizards = json.asset_events.reverse();
           wizards.forEach((event) => { 
-            const embed = new MessageEmbed()
-          .setColor(event.asset.backgroundColor)
-          .setTitle(`✨ Wizard #${event.asset.token_id} sold for ${(event.total_price / 1000000000000000000)} ${event.payment_token.symbol}!`)
-          .setDescription(`${event.asset.name}`)
-          .setURL(`${this.configService.wizards.openSeaBaseURI}/${event.asset.token_id}`)
-          .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${event.asset.token_id}.png`);
+            if (this._recentTransactions.indexOf(event.transaction.transaction_hash) == -1) {
+              const embed = new MessageEmbed()
+            .setColor(event.asset.backgroundColor)
+            .setTitle(`✨ Wizard #${event.asset.token_id} sold for ${(event.total_price / 1000000000000000000)} ${event.payment_token.symbol}!`)
+            .setDescription(`${event.asset.name}`)
+            .setURL(`${this.configService.wizards.openSeaBaseURI}/${event.asset.token_id}`)
+            .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${event.asset.token_id}.png`);
 
-          this._salesChannel.send(embed);
-          
+            this._salesChannel.send(embed);
+            this._recentTransactions.push(event.transaction.transaction_hash);
 
+            if (this._recentTransactions.length > 5) {
+              this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 5, 0))
+            }
+            console.log(this._recentTransactions);
+        }
            } );
         })
         .catch(err => console.error('error:' + err));
