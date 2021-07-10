@@ -31,8 +31,7 @@ export interface WizardsConfig {
  */
 export interface DiscordConfig {
   token: string;
-  salesChannelId?: string;
-  tradingChannelId?: string;
+  salesChannelIds: Array<string>;
   prefix: string;
 }
 

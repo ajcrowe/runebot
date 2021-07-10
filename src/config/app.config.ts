@@ -9,8 +9,7 @@ export default (): AppConfig => ({
   },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,
-    salesChannelId: process.env.DISCORD_SALES_CHANNEL_ID || "",
-    tradingChannelId: process.env.DISCORD_TRADING_CHANNEL_ID || "",
+    salesChannelIds: process.env.DISCORD_SALES_CHANNEL_IDS.split(',') || [],
     prefix: process.env.DISCORD_PREFIX || "#",
   },
   ethereum: {

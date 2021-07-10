@@ -13,8 +13,7 @@ export class DiscordService {
   private readonly _client = new Discord.Client();
   private readonly _rangeRegex = new RegExp(`^${toRegexRange('1', '10000')}$`);
 
-  protected _salesChannel: TextChannel;
-  protected _tradingChannel: TextChannel;
+  protected _salesChannels: Array<TextChannel>;
   protected _recentTransactions: Array<string>;
 
   get name(): string {
@@ -25,11 +24,13 @@ export class DiscordService {
     protected readonly configService: AppConfigService,
     protected readonly dataStoreService: DataStoreService
   ) {
-    const { token, salesChannelId, tradingChannelId } = this.configService.discord
+    const { token, salesChannelIds } = this.configService.discord
     this._client.login(token);
     this._client.on('ready', async () => {
-      this._salesChannel = await this._client.channels.fetch(salesChannelId) as TextChannel;
-      this._tradingChannel = await this._client.channels.fetch(tradingChannelId) as TextChannel;
+      this._salesChannels = [];
+      for (const channelId of salesChannelIds) {
+        this._salesChannels.push(await this._client.channels.fetch(channelId) as TextChannel);
+      }
       this._recentTransactions = [];
     });
     this.channelWatcher();
@@ -77,8 +78,9 @@ export class DiscordService {
                 },
               ])
 
-            this._salesChannel.send(embed);
-            this._tradingChannel.send(embed);
+            for (const channel of this._salesChannels) {
+              channel.send(embed);
+            }
             this._recentTransactions.push(sale.transaction.transaction_hash);
 
             if (this._recentTransactions.length > 100) {
