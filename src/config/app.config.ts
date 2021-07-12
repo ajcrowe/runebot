@@ -1,6 +1,9 @@
 import { AppConfig } from '../types';
 
 export default (): AppConfig => ({
+  bot: {
+    salesCheckCron: process.env.SALES_CHECK_CRON || '*/5 * * * *'
+  },
   wizards: {
     tokenContract: process.env.WIZARD_CONTRACT,
     openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',

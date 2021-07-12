@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  BotConfig,
   DiscordConfig,
   EthereumConfig,
   TwitterConfig,
@@ -13,9 +14,16 @@ export class AppConfigService {
   constructor(protected readonly configService: ConfigService) {}
 
   /**
+   * Bot config
+   */
+  public get bot(): BotConfig {
+    return this.configService.get<BotConfig>('bot');
+  }
+
+  /**
    * Wizard config
    */
-   public get wizards(): WizardsConfig {
+  public get wizards(): WizardsConfig {
     return this.configService.get<WizardsConfig>('wizards');
   }
 

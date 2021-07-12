@@ -2,10 +2,18 @@
  * Application Config
  */
 export interface AppConfig {
+  bot: BotConfig;
   ethereum: EthereumConfig;
   wizards: WizardsConfig;
   discord: DiscordConfig;
   twitter: TwitterConfig;
+}
+
+/**
+ * Bot config options
+ */
+export interface BotConfig {
+  salesCheckCron: string;
 }
 
 /**
