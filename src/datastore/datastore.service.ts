@@ -56,7 +56,7 @@ export class DataStoreService {
 
     // this is ugly
     let rarity = data.traitCounts[wizard.traitCount];
-    let rarityName = this.getRarityConfig(rarity).name;
+    let rarityName = this.getRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Traits`,
       value: `${wizard.traitCount} (${(rarity / 100)}%)`,
@@ -64,7 +64,7 @@ export class DataStoreService {
     });
 
     rarity = data.nameLengths[wizard.nameLength];
-    rarityName = this.getRarityConfig(rarity).name;
+    rarityName = this.getRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Name Length`,
       value: `${wizard.nameLength} (${(rarity / 100)}%)`,
@@ -72,7 +72,7 @@ export class DataStoreService {
     });
 
     rarity = data.affinityOccurences[wizard.maxAffinity];
-    rarityName = this.getRarityConfig(rarity).name;
+    rarityName = this.getAffinityRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Affinity`,
       value: `${wizard.maxAffinity} (${wizard.affinities[wizard.maxAffinity]}/${wizard.traitCount - 1} traits)`,
@@ -81,7 +81,7 @@ export class DataStoreService {
 
     for (const trait of wizard.traits) {
       fields.push({
-        name: `${this.getRarityConfig(trait.rarity).name} ${trait.name}`,
+        name: `${this.getRarityDescriptor(trait.rarity)} ${trait.name}`,
         value: `${trait.value} (${trait.rarity / 100}%)`,
         inline: true,
       })
@@ -90,15 +90,23 @@ export class DataStoreService {
   }
 
   /*
-   * Get rarity config for specific trait
-   */
-  public getRarityConfig(rarity: number): RarityConfig {
+    * Get rarity config for specific trait
+    */
+  getRarityConfig(rarity: number, getCutoff: (config: RarityConfig) => number): RarityConfig {
     const rarityConfigs: RarityConfig[] = Object.values(rarityRegistry);
     for (const config of rarityConfigs) {
-      if (config.cutoff >= rarity) {
+      if (getCutoff(config) >= rarity) {
         return config;
       }
     }
     return rarityRegistry.common;
+  }
+
+  getRarityDescriptor(rarity: number): string {
+    return this.getRarityConfig(rarity, (config) => config.cutoff).name;
+  }
+
+  getAffinityRarityDescriptor(rarity: number): string {
+    return this.getRarityConfig(rarity, (config) => config.affinityCutoff).name;
   }
 }
