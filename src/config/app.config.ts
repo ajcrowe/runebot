@@ -2,7 +2,8 @@ import { AppConfig } from '../types';
 
 export default (): AppConfig => ({
   bot: {
-    salesCheckCron: process.env.SALES_CHECK_CRON || '*/5 * * * *'
+    salesCheckCron: process.env.SALES_CHECK_CRON || '*/5 * * * *',
+    openSeaApiKey: process.env.OPENSEA_API_KEY
   },
   wizards: {
     tokenContract: process.env.WIZARD_CONTRACT,
