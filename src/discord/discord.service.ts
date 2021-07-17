@@ -42,8 +42,8 @@ export class DiscordService {
 
   public async checkSales(): Promise<void> {
     try {
-      const timestamp = new Date(Date.now() - (600 * 1000));
-      const url = `https://api.opensea.io/api/v1/events?collection_slug=${this.configService.wizards.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=20&occurred_after=${timestamp.toISOString()}`;
+      const timestamp = new Date(Date.now() - (900 * 1000));
+      const url = `https://api.opensea.io/api/v1/events?collection_slug=${this.configService.wizards.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp.toISOString()}`;
       const options = {method: 'GET', headers: {Accept: 'application/json', 'X-API-KEY': this.configService.bot.openSeaApiKey}};
 
       try {
