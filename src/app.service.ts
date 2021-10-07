@@ -27,7 +27,8 @@ export class AppService {
     const salesChecker = new CronJob(
       this.configService.bot.salesCheckCron, async () => {
       this._logger.log(`Running Sales Checker Job`);
-      this._discord.checkSales();
+      this._discord.checkWizardSales();
+      this._discord.checkFlameSales();
     });
 
     this._schedulerRegistry.addCronJob(CronJobs.SALES_CHECKER, salesChecker);

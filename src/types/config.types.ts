@@ -31,6 +31,7 @@ export interface EthereumConfig {
 export interface WizardsConfig {
   tokenContract: string;
   openSeaSlug: string;
+  openSeaFlameSlug: string;
   ipfsBaseURI: string;
   openSeaBaseURI: string;
 }

@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@apollo/client": "^3.4.7",
     "@nestjs/common": "^7.0.0",
     "@nestjs/config": "^0.5.0",
     "@nestjs/core": "^7.0.0",
@@ -30,11 +31,14 @@
     "@types/node-fetch": "^2.5.11",
     "axios": "^0.21.1",
     "cron": "^1.8.2",
+    "cross-fetch": "^3.1.4",
     "discord.js": "^12.5.3",
     "ethers": "^5.0.2",
+    "graphql": "^15.5.1",
     "moment": "^2.27.0",
     "node-fetch": "^2.6.1",
     "opensea-js": "^1.1.11",
+    "react": "^17.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",

@@ -40,63 +40,116 @@ export class DiscordService {
    * Send sale notification to sale channel
    */
 
-  public async checkSales(): Promise<void> {
-    try {
-      const timestamp = new Date(Date.now() - (900 * 1000));
-      const url = `https://api.opensea.io/api/v1/events?collection_slug=${this.configService.wizards.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp.toISOString()}`;
-      const options = {method: 'GET', headers: {Accept: 'application/json', 'X-API-KEY': this.configService.bot.openSeaApiKey}};
+  public async checkWizardSales(): Promise<void> {
+    const sales = await this.getSales(this.configService.wizards.openSeaSlug, 900)
+    for (const sale of sales.asset_events) {
+      console.log(sale.asset.token_id);
+      console.log(this._recentTransactions);
+      if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
+        const sellerName = sale.seller.user.username ? `(${sale.seller.user.username})` : ``
+        const winnerName = (sale.winner_account.user && sale.winner_account.user.username) ? `(${sale.winner_account.user.username})` : ``
+        const embed = new MessageEmbed()
+          .setColor(sale.asset.background_color)
+          .setTitle(`New Sale: ${sale.asset.name}`)
+          .setURL(`${this.configService.wizards.openSeaBaseURI}/${sale.asset.token_id}`)
+          .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${sale.asset.token_id}.png`)
+          .addFields([
+            {
+              name: 'Serial',
+              value: `${sale.asset.token_id}`
+            },
+            {
+              name: 'Amount',
+              value: `${(sale.total_price / 1000000000000000000)} ${sale.payment_token.symbol} ($${((sale.total_price / 1000000000000000000) * sale.payment_token.usd_price).toFixed(2)} USD)`,
+              inline: false
+            },
+            {
+              name: 'Seller',
+              value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
+              inline: true,
+            },
+            {
+              name: 'Buyer',
+              value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
+              inline: true
+            },
+          ])
 
-      try {
-        const response = await fetch(url, options)
-        const sales = await response.json()
-        for (const sale of sales.asset_events) {
-          if (!this._recentTransactions.includes(sale.transaction.transaction_hash)) {
-            const embed = new MessageEmbed()
-              .setColor(sale.asset.backgroundColor)
-              .setTitle(`New Sale: ${sale.asset.name}`)
-              .setURL(`${this.configService.wizards.openSeaBaseURI}/${sale.asset.token_id}`)
-              .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${sale.asset.token_id}.png`)
-              .addFields([
-                {
-                  name: 'Serial',
-                  value: `${sale.asset.token_id}`
-                },
-                {
-                  name: 'Amount',
-                  value: `${(sale.total_price / 1000000000000000000)} ${sale.payment_token.symbol} ($${((sale.total_price / 1000000000000000000) * sale.payment_token.usd_price).toFixed(2)} USD)`,
-                  inline: false
-                },
-                {
-                  name: 'Seller',
-                  value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) (${sale.seller.user.username})`,
-                  inline: true,
-                },
-                {
-                  name: 'Buyer',
-                  value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) (${sale.winner_account.user.username})`,
-                  inline: true
-                },
-              ])
-
-            for (const channel of this._salesChannels) {
-              channel.send(embed);
-            }
-            this._recentTransactions.push(sale.transaction.transaction_hash);
-
-            if (this._recentTransactions.length > 100) {
-              this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
-            }
-          }
+        for (const channel of this._salesChannels) {
+          channel.send(embed);
         }
-      } catch(error) {
-        this._logger.error(`error fetching sales from OpenSea: ${error}`);
-      }
+        this._recentTransactions.push(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`);
 
-    } catch (err) {
+        if (this._recentTransactions.length > 100) {
+          this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
+        }
+      }
+    }
+  }
+
+  /*
+  * Check for flame sales
+  */
+  public async checkFlameSales(): Promise<void> {
+    const sales = await this.getSales(this.configService.wizards.openSeaFlameSlug, 900)
+    for (const sale of sales.asset_events) {
+      if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
+        const sellerName = sale.seller.user.username ? `(${sale.seller.user.username})` : ``
+        const winnerName = (sale.winner_account.user && sale.winner_account.user.username) ? `(${sale.winner_account.user.username})` : ``
+        const embed = new MessageEmbed()
+          .setColor(sale.asset.background_color)
+          .setTitle(`New Sale: ${sale.asset.name}`)
+          .setURL(sale.asset.permalink)
+          .setThumbnail(sale.asset.collection.image_url)
+          .addFields([
+            {
+              name: 'Amount',
+              value: `${(sale.total_price / 1000000000000000000)} ${sale.payment_token.symbol} ($${((sale.total_price / 1000000000000000000) * sale.payment_token.usd_price).toFixed(2)} USD)`,
+              inline: false
+            },
+            {
+              name: 'Seller',
+              value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
+              inline: true,
+            },
+            {
+              name: 'Buyer',
+              value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
+              inline: true
+            },
+          ])
+
+        for (const channel of this._salesChannels) {
+          channel.send(embed);
+        }
+        this._recentTransactions.push(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`);
+
+        if (this._recentTransactions.length > 100) {
+          this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
+        }
+      }
+    }
+  }
+
+  /*
+   * Get sales for specific collection
+   */
+
+  public async getSales(collection: string, seconds: number): Promise<any> {
+    try {
+      const timestamp = new Date(Date.now() - (seconds * 1000)).toISOString();
+      const url = `https://api.opensea.io/api/v1/events?collection_slug=${collection}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp}`;
+      const options = {method: 'GET', headers: {Accept: 'application/json', 'X-API-KEY': this.configService.bot.openSeaApiKey}};
+      const response = await fetch(url, options)
+      return response.json()
+    } catch(err) {
       this._logger.error(err);
     }
   }
 
+  /*
+   * watch channel for requests for data
+   */
   public async channelWatcher(): Promise<void> {
     const { prefix } = this.configService.discord
     this._client.on("message", async (message) => {

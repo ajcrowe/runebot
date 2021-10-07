@@ -2,12 +2,13 @@ import { AppConfig } from '../types';
 
 export default (): AppConfig => ({
   bot: {
-    salesCheckCron: process.env.SALES_CHECK_CRON || '*/5 * * * *',
+    salesCheckCron: process.env.SALES_CHECK_CRON || '*/1 * * * *',
     openSeaApiKey: process.env.OPENSEA_API_KEY
   },
   wizards: {
     tokenContract: process.env.WIZARD_CONTRACT,
     openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',
+    openSeaFlameSlug: process.env.WIZARD_FLAME_OPENSEA_SLUG || 'infinityveil',
     ipfsBaseURI: process.env.WIZARD_IPFS_BASE_URI,
     openSeaBaseURI: process.env.WIZARD_OPENSEA_BASE_URI,
   },
