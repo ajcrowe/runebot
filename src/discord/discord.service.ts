@@ -100,7 +100,7 @@ export class DiscordService {
           .setColor(sale.asset.background_color)
           .setTitle(`New Sale: ${sale.asset.name}`)
           .setURL(sale.asset.permalink)
-          .setThumbnail(sale.asset.collection.image_url)
+          .setThumbnail(`https://github.com/ajcrowe/runebot/raw/master/assets/flame.png`)
           .addFields([
             {
               name: 'Amount',
