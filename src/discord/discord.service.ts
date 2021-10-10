@@ -41,7 +41,7 @@ export class DiscordService {
    */
 
   public async checkWizardSales(): Promise<void> {
-    const sales = await this.getSales(this.configService.wizards.openSeaSlug, 90000)
+    const sales = await this.getSales(this.configService.wizards.openSeaSlug)
     for (const sale of sales.asset_events) {
       if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
         const fields = [{name: 'Serial', value: sale.asset.token_id}, ...this.getStandardFields(sale)]
@@ -68,7 +68,7 @@ export class DiscordService {
   * Check for flame sales
   */
   public async checkFlameSales(): Promise<void> {
-    const sales = await this.getSales(this.configService.wizards.openSeaFlameSlug, 90000)
+    const sales = await this.getSales(this.configService.wizards.openSeaFlameSlug)
     for (const sale of sales.asset_events) {
       if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
         const embed = new MessageEmbed()
@@ -94,9 +94,9 @@ export class DiscordService {
    * Get sales for specific collection
    */
 
-  public async getSales(collection: string, seconds: number): Promise<any> {
+  public async getSales(collection: string): Promise<any> {
     try {
-      const timestamp = new Date(Date.now() - (seconds * 1000)).toISOString();
+      const timestamp = new Date(Date.now() - (Number(this.configService.bot.salesLookbackSeconds) * 1000)).toISOString();
       const url = `https://api.opensea.io/api/v1/events?collection_slug=${collection}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp}`;
       const options = {method: 'GET', headers: {Accept: 'application/json', 'X-API-KEY': this.configService.bot.openSeaApiKey}};
       const response = await fetch(url, options)

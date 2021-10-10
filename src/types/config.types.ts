@@ -14,6 +14,7 @@ export interface AppConfig {
  */
 export interface BotConfig {
   salesCheckCron: string;
+  salesLookbackSeconds: number;
   openSeaApiKey: string;
 }
 
