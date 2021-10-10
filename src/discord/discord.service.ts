@@ -41,39 +41,16 @@ export class DiscordService {
    */
 
   public async checkWizardSales(): Promise<void> {
-    const sales = await this.getSales(this.configService.wizards.openSeaSlug, 900)
+    const sales = await this.getSales(this.configService.wizards.openSeaSlug, 90000)
     for (const sale of sales.asset_events) {
-      console.log(sale.asset.token_id);
-      console.log(this._recentTransactions);
       if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
-        const sellerName = sale.seller.user.username ? `(${sale.seller.user.username})` : ``
-        const winnerName = (sale.winner_account.user && sale.winner_account.user.username) ? `(${sale.winner_account.user.username})` : ``
+        const fields = [{name: 'Serial', value: sale.asset.token_id}, ...this.getStandardFields(sale)]
         const embed = new MessageEmbed()
           .setColor(sale.asset.background_color)
           .setTitle(`New Sale: ${sale.asset.name}`)
           .setURL(`${this.configService.wizards.openSeaBaseURI}/${sale.asset.token_id}`)
           .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${sale.asset.token_id}.png`)
-          .addFields([
-            {
-              name: 'Serial',
-              value: `${sale.asset.token_id}`
-            },
-            {
-              name: 'Amount',
-              value: `${(sale.total_price / 1000000000000000000)} ${sale.payment_token.symbol} ($${((sale.total_price / 1000000000000000000) * sale.payment_token.usd_price).toFixed(2)} USD)`,
-              inline: false
-            },
-            {
-              name: 'Seller',
-              value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
-              inline: true,
-            },
-            {
-              name: 'Buyer',
-              value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
-              inline: true
-            },
-          ])
+          .addFields(fields)
 
         for (const channel of this._salesChannels) {
           channel.send(embed);
@@ -91,33 +68,15 @@ export class DiscordService {
   * Check for flame sales
   */
   public async checkFlameSales(): Promise<void> {
-    const sales = await this.getSales(this.configService.wizards.openSeaFlameSlug, 900)
+    const sales = await this.getSales(this.configService.wizards.openSeaFlameSlug, 90000)
     for (const sale of sales.asset_events) {
       if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
-        const sellerName = sale.seller.user.username ? `(${sale.seller.user.username})` : ``
-        const winnerName = (sale.winner_account.user && sale.winner_account.user.username) ? `(${sale.winner_account.user.username})` : ``
         const embed = new MessageEmbed()
           .setColor(sale.asset.background_color)
           .setTitle(`New Sale: ${sale.asset.name}`)
           .setURL(sale.asset.permalink)
           .setThumbnail(`https://github.com/ajcrowe/runebot/raw/master/assets/flame.png`)
-          .addFields([
-            {
-              name: 'Amount',
-              value: `${(sale.total_price / 1000000000000000000)} ${sale.payment_token.symbol} ($${((sale.total_price / 1000000000000000000) * sale.payment_token.usd_price).toFixed(2)} USD)`,
-              inline: false
-            },
-            {
-              name: 'Seller',
-              value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
-              inline: true,
-            },
-            {
-              name: 'Buyer',
-              value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
-              inline: true
-            },
-          ])
+          .addFields(this.getStandardFields(sale))
 
         for (const channel of this._salesChannels) {
           channel.send(embed);
@@ -188,5 +147,30 @@ export class DiscordService {
         return
       }
     });
+  }
+
+  /*
+   * get standard fields for each sale
+   */
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public getStandardFields(sale: any): any[] {
+    const sellerName = (sale.seller.user && sale.seller.user.username) ? `(${sale.seller.user.username})` : ``
+    const winnerName = (sale.winner_account.user && sale.winner_account.user.username) ? `(${sale.winner_account.user.username})` : ``
+    const price = sale.total_price / (10 ** sale.payment_token.decimals)
+    return [{
+      name: 'Amount',
+      value: `${price} ${sale.payment_token.symbol} ($${(price * sale.payment_token.usd_price).toFixed(2)} USD)`,
+      inline: false
+    },
+    {
+      name: 'Seller',
+      value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
+      inline: true,
+    },
+    {
+      name: 'Buyer',
+      value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
+      inline: true
+    }]
   }
 }
