@@ -85,12 +85,12 @@ export class DataStoreService {
       .forEach((a) => {
         affinitiesOutput += a[0] + ' (' + a[1] + '/' + (wizard.traitCount - 1) + ') traits\n';
       })
-    
+
     //Display max affinitiy if not 100% attained
      if (affinitiesOutput == '') {
        affinitiesOutput = wizard.maxAffinity + ' (' + wizard.affinities[wizard.maxAffinity] + '/' + (wizard.traitCount - 1) + ') traits';
-     } 
-     
+     }
+
     rarity = data.affinityOccurences[wizard.maxAffinity];
     rarityName = this.getAffinityRarityDescriptor(rarity);
 

@@ -18,7 +18,7 @@ export default (): AppConfig => ({
     salesChannelIds: process.env.DISCORD_SALES_CHANNEL_IDS.split(',') || [],
     prefix: process.env.DISCORD_PREFIX || "#",
   },
-  ethereum: {   
+  ethereum: {
     network: process.env.ETHEREUM_NETWORK,
     url: process.env.ETHEREUM_URL,
   },
