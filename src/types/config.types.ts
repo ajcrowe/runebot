@@ -33,6 +33,7 @@ export interface WizardsConfig {
   tokenContract: string;
   openSeaSlug: string;
   openSeaFlameSlug: string;
+  openSeaSoulSlug: string;
   ipfsBaseURI: string;
   openSeaBaseURI: string;
 }

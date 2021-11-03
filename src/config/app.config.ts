@@ -10,6 +10,7 @@ export default (): AppConfig => ({
     tokenContract: process.env.WIZARD_CONTRACT,
     openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',
     openSeaFlameSlug: process.env.WIZARD_FLAME_OPENSEA_SLUG || 'infinityveil',
+    openSeaSoulSlug: process.env.WIZARD_SOUL_OPENSEA_SLUG || 'forgottensouls',
     ipfsBaseURI: process.env.WIZARD_IPFS_BASE_URI,
     openSeaBaseURI: process.env.WIZARD_OPENSEA_BASE_URI,
   },

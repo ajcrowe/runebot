@@ -90,6 +90,33 @@ export class DiscordService {
     }
   }
 
+/*
+  * Check for soul sales
+  */
+public async checkSoulSales(): Promise<void> {
+  const sales = await this.getSales(this.configService.wizards.openSeaSoulSlug)
+  console.log(sales);
+  for (const sale of sales.asset_events) {
+    if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
+      const embed = new MessageEmbed()
+        .setColor(sale.asset.background_color)
+        .setTitle(`New Sale: ${sale.asset.name}`)
+        .setURL(sale.asset.permalink)
+        .setThumbnail(`https://portal.forgottenrunes.com/api/souls/img/${sale.asset.token_id}.png`)
+        .addFields(this.getStandardFields(sale))
+
+      for (const channel of this._salesChannels) {
+        channel.send(embed);
+      }
+      this._recentTransactions.push(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`);
+
+      if (this._recentTransactions.length > 100) {
+        this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
+      }
+    }
+  }
+}
+
   /*
    * Get sales for specific collection
    */
