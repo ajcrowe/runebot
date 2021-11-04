@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../config';
 import Discord, { TextChannel, MessageEmbed } from 'discord.js';
 import toRegexRange from 'to-regex-range';
-import { Wizard } from 'src/types';
+import { Wizard, Soul, SoulTrait, SoulAttrName } from 'src/types';
 import { DataStoreService } from '../datastore';
 import fetch from 'node-fetch';
+import { stringify } from 'querystring';
 
 
 @Injectable()
@@ -65,8 +66,8 @@ export class DiscordService {
   }
 
   /*
-  * Check for flame sales
-  */
+   * Check for flame sales
+   */
   public async checkFlameSales(): Promise<void> {
     const sales = await this.getSales(this.configService.wizards.openSeaFlameSlug)
     for (const sale of sales.asset_events) {
@@ -90,37 +91,36 @@ export class DiscordService {
     }
   }
 
-/*
-  * Check for soul sales
-  */
-public async checkSoulSales(): Promise<void> {
-  const sales = await this.getSales(this.configService.wizards.openSeaSoulSlug)
-  console.log(sales);
-  for (const sale of sales.asset_events) {
-    if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
-      const embed = new MessageEmbed()
-        .setColor(sale.asset.background_color)
-        .setTitle(`New Sale: ${sale.asset.name}`)
-        .setURL(sale.asset.permalink)
-        .setThumbnail(`https://portal.forgottenrunes.com/api/souls/img/${sale.asset.token_id}.png`)
-        .addFields(this.getStandardFields(sale))
+  /*
+   * Check for soul sales
+   */
+  public async checkSoulSales(): Promise<void> {
+    const sales = await this.getSales(this.configService.wizards.openSeaSoulSlug)
+    console.log(sales);
+    for (const sale of sales.asset_events) {
+      if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
+        const embed = new MessageEmbed()
+          .setColor(sale.asset.background_color)
+          .setTitle(`New Sale: ${sale.asset.name}`)
+          .setURL(sale.asset.permalink)
+          .setThumbnail(`https://portal.forgottenrunes.com/api/souls/img/${sale.asset.token_id}.png`)
+          .addFields(this.getStandardFields(sale))
 
-      for (const channel of this._salesChannels) {
-        channel.send(embed);
-      }
-      this._recentTransactions.push(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`);
+        for (const channel of this._salesChannels) {
+          channel.send(embed);
+        }
+        this._recentTransactions.push(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`);
 
-      if (this._recentTransactions.length > 100) {
-        this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
+        if (this._recentTransactions.length > 100) {
+          this._recentTransactions = this._recentTransactions.slice(Math.max(this._recentTransactions.length - 100, 0))
+        }
       }
     }
   }
-}
 
   /*
    * Get sales for specific collection
    */
-
   public async getSales(collection: string): Promise<any> {
     try {
       const timestamp = new Date(Date.now() - (Number(this.configService.bot.salesLookbackSeconds) * 1000)).toISOString();
@@ -150,19 +150,29 @@ public async checkSoulSales(): Promise<void> {
       const command = args.shift().toLowerCase();
 
       if (this._rangeRegex.test(command)) {
+        let embed: MessageEmbed;
+        const isSoul = await this.checkSoul(command)
+        if (isSoul) {
+          const soul: Soul = await this.getSoul(command)
+          this._logger.log(`Fetched Soul: ${soul.name} (${command})`);
+          embed = new MessageEmbed()
+            .setColor(soul.backgroundColor)
+            .setAuthor(`#${soul.serial} ${soul.name}`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f/${soul.serial}`)
+            .setURL(`https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f/${soul.serial}`)
+            .setThumbnail(`https://portal.forgottenrunes.com/api/souls/img/${soul.serial}.png`)
+            .addFields(soul.traits);
+        } else {
+          const wizard: Wizard = await this.dataStoreService.getWizard(command)
+          this._logger.log(`Fetched Wizard: ${wizard.name} (${command})`);
+          const fields = this.dataStoreService.getWizardFields(wizard);
+          embed = new MessageEmbed()
+            .setColor(wizard.backgroundColor)
+            .setAuthor(`#${wizard.serial} ${wizard.name}`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
+            .setURL(`${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
+            .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${wizard.serial}.png`)
+            .addFields(fields)
+        }
 
-        const wizard: Wizard = await this.dataStoreService.getWizard(command)
-        this._logger.log(`Fetched Wizard: ${wizard.name} (${command})`);
-
-        const fields = this.dataStoreService.getWizardFields(wizard);
-
-        const embed = new MessageEmbed()
-          .setColor(wizard.backgroundColor)
-          .setAuthor(`#${wizard.serial} ${wizard.name}`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
-          .setURL(`${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
-          .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${wizard.serial}.png`)
-          .addFields(fields)
-        
         try {
           message.reply({embed: embed});
         } catch(error) {
@@ -199,5 +209,111 @@ public async checkSoulSales(): Promise<void> {
       value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
       inline: true
     }]
+  }
+
+  /*
+   * check if soul exists
+   */
+  public async checkSoul(id: string): Promise<boolean> {
+    try {
+      const url = `https://portal.forgottenrunes.com/api/souls/data/${id}`;
+      const options = {method: 'GET', headers: {Accept: 'application/json'}};
+      const response = await fetch(url, options)
+      if (response.status == 404) {
+        return false;
+      } else {
+        return true 
+      }
+    } catch(err) {
+      this._logger.error(err);
+    }
+  }
+
+   /*
+   * get soul exists
+   */
+   public async getSoul(id: string): Promise<Soul> {
+    try {
+      const url = `https://portal.forgottenrunes.com/api/souls/data/${id}`;
+      const options = {method: 'GET', headers: {Accept: 'application/json'}};
+      const response = await fetch(url, options)
+      const soulJson = await response.json()
+
+      const attrs: Array<SoulTrait> = soulJson.attributes
+      let background: string,
+          body: string,
+          head: string,
+          prop: string,
+          familiar: string,
+          traitCount: string, 
+          affinityPercent: string, 
+          affinityCount: string,
+          affinityName: string,
+          transNumber: string,
+          transName: string,
+          undesirable: string;
+      const traits = []
+      for (const attr of attrs) {
+        switch (attr.trait_type) {
+          case SoulAttrName["Background"]:
+            background = attr.value
+            break;
+          case SoulAttrName["Body"]:
+            body = attr.value
+            break;
+          case SoulAttrName["Head"]:
+            head = attr.value
+            break;
+          case SoulAttrName["Prop"]:
+            prop = attr.value
+            break;
+          case SoulAttrName["Familiar"]:
+            familiar = attr.value
+            break;
+          case SoulAttrName["Affinity"]:
+            affinityName = attr.value
+            break;
+          case SoulAttrName["TraitsCount"]:
+            traitCount = attr.value
+            break;
+          case SoulAttrName["TraitsAffinityCount"]:
+            affinityCount = attr.value
+            break;
+          case SoulAttrName["TraitsAffinityPercent"]:
+            affinityPercent = `${attr.value.split(" ")[0]}%`
+            break;
+          case SoulAttrName["TransmutedNumber"]:
+            transNumber = attr.value
+            break;
+          case SoulAttrName["TransmutedName"]:
+            transName = attr.value
+            break;
+          case SoulAttrName["Undesirable"]:
+            undesirable = attr.value
+        }
+      }
+      if (undesirable) {
+        traits.push({name: 'Background', value: background, inline: false })
+        traits.push({name: 'Transmuted', value: `${transName} (${transNumber})`, inline: true})
+      } else {
+        traits.push({name: 'Traits', value: traitCount, inline: true })
+        traits.push({name: 'Background', value: background, inline: true })
+        traits.push({name: 'Head', value: head, inline: true })
+        traits.push({name: 'Body', value: body, inline: true })
+        traits.push({name: 'Prop', value: prop, inline: true })
+        traits.push({name: 'Familiar', value: familiar, inline: true })
+        traits.push({name: 'Transmuted', value: `${transName} (${transNumber})`, inline: true})
+        traits.push({name: 'Affinity Name', value: affinityName, inline: true})
+        traits.push({name: 'Affinity', value: `${affinityPercent} attuned (${affinityCount}/${traitCount})`, inline: true})
+      }
+      return {
+        serial: id,
+        name: soulJson.name,
+        backgroundColor: soulJson.background_color,
+        traits: traits
+      }
+    } catch(err) {
+      this._logger.error(err);
+    }
   }
 }

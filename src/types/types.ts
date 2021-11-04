@@ -32,6 +32,43 @@ export enum WizardBackground {
   Green = '040d04'
 }
 
+/**
+ * Soul
+ */
+ export interface Soul {
+  name: string,
+  serial: string,
+  traits: any[],
+  backgroundColor: string,
+}
+
+/**
+ * Soul Trait
+ */
+export interface SoulTrait {
+  trait_type: string,
+  value: string,
+}
+
+/**
+ * Soul Attribute names
+ */
+export enum SoulAttrName {
+  Background = 'background',
+  Body = 'body',
+  Head = 'head',
+  Prop = 'prop',
+  Familiar = 'familiar',
+  Affinity = 'Affinity',
+  TraitsCount = '# Traits',
+  TraitsAffinityCount = '# Traits in Affinity',
+  TraitsAffinityPercent = '% Traits in Affinity',
+  TransmutedNumber = 'Transmuted from number',
+  TransmutedName = 'Transmuted from',
+  BurnOrder = 'Burn order',
+  Undesirable = 'undesirable'
+}
+
 export interface RarityConfig {
   color: string;
   cutoff: number;
