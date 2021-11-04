@@ -157,7 +157,7 @@ export class DiscordService {
           this._logger.log(`Fetched Soul: ${soul.name} (${command})`);
           embed = new MessageEmbed()
             .setColor(soul.backgroundColor)
-            .setAuthor(`#${soul.serial} ${soul.name}`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f/${soul.serial}`)
+            .setAuthor(`${soul.name} (#${soul.serial})`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f/${soul.serial}`)
             .setURL(`https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f/${soul.serial}`)
             .setThumbnail(`https://portal.forgottenrunes.com/api/souls/img/${soul.serial}.png`)
             .addFields(soul.traits);
@@ -167,7 +167,7 @@ export class DiscordService {
           const fields = this.dataStoreService.getWizardFields(wizard);
           embed = new MessageEmbed()
             .setColor(wizard.backgroundColor)
-            .setAuthor(`#${wizard.serial} ${wizard.name}`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
+            .setAuthor(`${wizard.name} (#${wizard.serial})`, 'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64', `${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
             .setURL(`${this.configService.wizards.openSeaBaseURI}/${wizard.serial}`)
             .setThumbnail(`${this.configService.wizards.ipfsBaseURI}/${wizard.serial}.png`)
             .addFields(fields)
@@ -219,10 +219,11 @@ export class DiscordService {
       const url = `https://portal.forgottenrunes.com/api/souls/data/${id}`;
       const options = {method: 'GET', headers: {Accept: 'application/json'}};
       const response = await fetch(url, options)
-      if (response.status == 404) {
-        return false;
+      console.log(response.status)
+      if (response.status == 200) {
+        return true;
       } else {
-        return true 
+        return false
       }
     } catch(err) {
       this._logger.error(err);
@@ -246,7 +247,6 @@ export class DiscordService {
           prop: string,
           familiar: string,
           traitCount: string, 
-          affinityPercent: string, 
           affinityCount: string,
           affinityName: string,
           transNumber: string,
@@ -279,9 +279,6 @@ export class DiscordService {
           case SoulAttrName["TraitsAffinityCount"]:
             affinityCount = attr.value
             break;
-          case SoulAttrName["TraitsAffinityPercent"]:
-            affinityPercent = `${attr.value.split(" ")[0]}%`
-            break;
           case SoulAttrName["TransmutedNumber"]:
             transNumber = attr.value
             break;
@@ -293,18 +290,27 @@ export class DiscordService {
         }
       }
       if (undesirable) {
+        traits.push({name: 'Transmuted From', value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber}) (${transNumber})`, inline: false})
         traits.push({name: 'Background', value: background, inline: false })
-        traits.push({name: 'Transmuted', value: `${transName} (${transNumber})`, inline: true})
       } else {
-        traits.push({name: 'Traits', value: traitCount, inline: true })
+        traits.push({name: 'Transmuted From', value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber}) (${transNumber})`, inline: false})
         traits.push({name: 'Background', value: background, inline: true })
         traits.push({name: 'Head', value: head, inline: true })
         traits.push({name: 'Body', value: body, inline: true })
-        traits.push({name: 'Prop', value: prop, inline: true })
-        traits.push({name: 'Familiar', value: familiar, inline: true })
-        traits.push({name: 'Transmuted', value: `${transName} (${transNumber})`, inline: true})
-        traits.push({name: 'Affinity Name', value: affinityName, inline: true})
-        traits.push({name: 'Affinity', value: `${affinityPercent} attuned (${affinityCount}/${traitCount})`, inline: true})
+        if (prop) {
+          traits.push({name: 'Prop', value: prop, inline: true })
+        }
+        if (familiar) {
+          traits.push({name: 'Familiar', value: familiar, inline: true })
+        }
+        traits.push({name: 'Affinity', value: `${affinityName} (${affinityCount}/${traitCount})`, inline: true})
+      }
+      if (traits.length == 5) {
+        traits.push({name: `\u200b`, value: `\u200b`, inline: true })
+        traits.push({name: `\u200b`, value: `\u200b`, inline: true })
+      }
+      if (traits.length == 6) {
+        traits.push({name: `\u200b`, value: `\u200b`, inline: true })
       }
       return {
         serial: id,

@@ -86,6 +86,14 @@ export class DataStoreService {
         inline: true,
       })
     }
+    const l = wizard.traits.length
+    if (l == 2 || l == 5 || l == 8 ) {
+      fields.push({name: `\u200b`, value: `\u200b`, inline: true })
+    }
+    if (l == 1 || l == 4 || l == 7 ) {
+      fields.push({name: `\u200b`, value: `\u200b`, inline: true })
+      fields.push({name: `\u200b`, value: `\u200b`, inline: true })
+    }
     return fields
   }
 
