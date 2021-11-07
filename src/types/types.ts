@@ -58,6 +58,7 @@ export enum SoulAttrName {
   Body = 'body',
   Head = 'head',
   Prop = 'prop',
+  Rune = 'rune',
   Familiar = 'familiar',
   Affinity = 'Affinity',
   TraitsCount = '# Traits',

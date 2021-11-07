@@ -96,7 +96,6 @@ export class DiscordService {
    */
   public async checkSoulSales(): Promise<void> {
     const sales = await this.getSales(this.configService.wizards.openSeaSoulSlug)
-    console.log(sales);
     for (const sale of sales.asset_events) {
       if (!this._recentTransactions.includes(`${sale.transaction.transaction_hash}:${sale.asset.token_id}`)) {
         const embed = new MessageEmbed()
@@ -219,7 +218,6 @@ export class DiscordService {
       const url = `https://portal.forgottenrunes.com/api/souls/data/${id}`;
       const options = {method: 'GET', headers: {Accept: 'application/json'}};
       const response = await fetch(url, options)
-      console.log(response.status)
       if (response.status == 200) {
         return true;
       } else {
@@ -251,7 +249,8 @@ export class DiscordService {
           affinityName: string,
           transNumber: string,
           transName: string,
-          undesirable: string;
+          undesirable: string,
+          rune: string;
       const traits = []
       for (const attr of attrs) {
         switch (attr.trait_type) {
@@ -266,6 +265,9 @@ export class DiscordService {
             break;
           case SoulAttrName["Prop"]:
             prop = attr.value
+            break;
+          case SoulAttrName["Rune"]:
+            rune = attr.value
             break;
           case SoulAttrName["Familiar"]:
             familiar = attr.value
@@ -289,13 +291,12 @@ export class DiscordService {
             undesirable = attr.value
         }
       }
-      if (undesirable) {
-        traits.push({name: 'Transmuted From', value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber}) (${transNumber})`, inline: false})
-        traits.push({name: 'Background', value: background, inline: false })
-      } else {
-        traits.push({name: 'Transmuted From', value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber}) (${transNumber})`, inline: false})
-        traits.push({name: 'Background', value: background, inline: true })
-        traits.push({name: 'Head', value: head, inline: true })
+      traits.push({name: 'Transmuted From', value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber})`, inline: false})
+      traits.push({name: 'Background', value: background, inline: true })
+      if (!undesirable) {
+        if (head) {
+          traits.push({name: 'Head', value: head, inline: true })
+        }
         traits.push({name: 'Body', value: body, inline: true })
         if (prop) {
           traits.push({name: 'Prop', value: prop, inline: true })
@@ -303,14 +304,12 @@ export class DiscordService {
         if (familiar) {
           traits.push({name: 'Familiar', value: familiar, inline: true })
         }
-        traits.push({name: 'Affinity', value: `${affinityName} (${affinityCount}/${traitCount})`, inline: true})
-      }
-      if (traits.length == 5) {
-        traits.push({name: `\u200b`, value: `\u200b`, inline: true })
-        traits.push({name: `\u200b`, value: `\u200b`, inline: true })
-      }
-      if (traits.length == 6) {
-        traits.push({name: `\u200b`, value: `\u200b`, inline: true })
+        if (rune) {
+          traits.push({name: 'Rune', value: rune, inline: true })
+        }
+        if (affinityName) {
+          traits.push({name: 'Affinity', value: `${affinityName} (${affinityCount}/${traitCount})`, inline: true})
+        }
       }
       return {
         serial: id,
