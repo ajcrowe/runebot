@@ -199,14 +199,14 @@ export class DiscordService {
       inline: false
     },
     {
-      name: 'Seller',
-      value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
-      inline: true,
-    },
-    {
       name: 'Buyer',
       value: `[${sale.winner_account.address.slice(0, -34)}](https://opensea.io/accounts/${sale.winner_account.address}) ${winnerName}`,
       inline: true
+    },
+    {
+      name: 'Seller',
+      value: `[${sale.seller.address.slice(0, -34)}](https://opensea.io/accounts/${sale.seller.address}) ${sellerName}`,
+      inline: true,
     }]
   }
 
