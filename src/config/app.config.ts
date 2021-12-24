@@ -11,6 +11,7 @@ export default (): AppConfig => ({
     openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',
     openSeaFlameSlug: process.env.WIZARD_FLAME_OPENSEA_SLUG || 'infinityveil',
     openSeaSoulSlug: process.env.WIZARD_SOUL_OPENSEA_SLUG || 'forgottensouls',
+    openSeaPonySlug: process.env.WIZARD_PONY_OPENSEA_SLUG || 'forgottenrunesponies',
     ipfsBaseURI: process.env.WIZARD_IPFS_BASE_URI,
     openSeaBaseURI: process.env.WIZARD_OPENSEA_BASE_URI,
   },

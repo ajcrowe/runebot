@@ -34,6 +34,7 @@ export interface WizardsConfig {
   openSeaSlug: string;
   openSeaFlameSlug: string;
   openSeaSoulSlug: string;
+  openSeaPonySlug: string;
   ipfsBaseURI: string;
   openSeaBaseURI: string;
 }

@@ -30,6 +30,7 @@ export class AppService {
       this._discord.checkWizardSales();
       this._discord.checkFlameSales();
       this._discord.checkSoulSales();
+      this._discord.checkPonySales();
     });
 
     this._schedulerRegistry.addCronJob(CronJobs.SALES_CHECKER, salesChecker);
