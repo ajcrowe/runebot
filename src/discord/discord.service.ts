@@ -148,7 +148,7 @@ export class DiscordService {
    */
   public async getSales(collection: string): Promise<any> {
     try {
-      await this.sleep(Math.floor(Math.random() * 120))
+      await this.sleep(Math.floor(Math.random() * 120 * 1000))
       const timestamp = new Date(Date.now() - (Number(this.configService.bot.salesLookbackSeconds) * 1000)).toISOString();
       const url = `https://api.opensea.io/api/v1/events?collection_slug=${collection}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp}`;
       const options = {method: 'GET', headers: {Accept: 'application/json', 'X-API-KEY': this.configService.bot.openSeaApiKey}};
