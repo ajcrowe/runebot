@@ -71,11 +71,32 @@ export class DataStoreService {
       inline: true,
     });
 
+
+    let affinitiesOutput = '';
+
+    //Get all 100% affinties
+    Object.entries(wizard.affinities)
+      .filter((e) => e[1] >= 3)
+      .filter((e) => e[1] === wizard.traitCount - 1)
+      .sort((a, b) => {
+          //reverse sort by rarity when affinity is the same
+          return data.affinityOccurences[a[0]] - data.affinityOccurences[b[0]];
+      })
+      .forEach((a) => {
+        affinitiesOutput += a[0] + ' (' + a[1] + '/' + (wizard.traitCount - 1) + ') traits\n';
+      })
+
+    //Display max affinitiy if not 100% attained
+     if (affinitiesOutput == '') {
+       affinitiesOutput = wizard.maxAffinity + ' (' + wizard.affinities[wizard.maxAffinity] + '/' + (wizard.traitCount - 1) + ') traits';
+     }
+
     rarity = data.affinityOccurences[wizard.maxAffinity];
     rarityName = this.getAffinityRarityDescriptor(rarity);
+
     fields.push({
       name: `${rarityName} Affinity`,
-      value: `${wizard.maxAffinity} (${wizard.affinities[wizard.maxAffinity]}/${wizard.traitCount - 1} traits)`,
+      value: affinitiesOutput,
       inline: true,
     });
 
