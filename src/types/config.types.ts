@@ -4,7 +4,10 @@
 export interface AppConfig {
   bot: BotConfig;
   ethereum: EthereumConfig;
-  wizards: WizardsConfig;
+  wizard: CollectionConfig;
+  soul: CollectionConfig;
+  pony: CollectionConfig;
+  flame: CollectionConfig;
   discord: DiscordConfig;
   twitter: TwitterConfig;
 }
@@ -16,6 +19,7 @@ export interface BotConfig {
   salesCheckCron: string;
   salesLookbackSeconds: number;
   openSeaApiKey: string;
+  looksRareApi: string;
 }
 
 /**
@@ -29,14 +33,12 @@ export interface EthereumConfig {
 /**
  * Wizards configuration
  */
-export interface WizardsConfig {
+export interface CollectionConfig {
   tokenContract: string;
+  tokenAbi: string;
   openSeaSlug: string;
-  openSeaFlameSlug: string;
-  openSeaSoulSlug: string;
-  openSeaPonySlug: string;
-  ipfsBaseURI: string;
-  openSeaBaseURI: string;
+  ipfsBaseURI?: string;
+  openSeaBaseURI?: string;
 }
 
 /**

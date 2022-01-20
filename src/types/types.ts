@@ -70,6 +70,36 @@ export enum SoulAttrName {
   Undesirable = 'undesirable'
 }
 
+/**
+ * Pony
+ */
+export interface Pony {
+  name: string,
+  serial: string,
+  traits: any[],
+}
+
+/**
+ * Pony Traits
+ */
+ export interface PonyTrait {
+  trait_type: string,
+  value: string,
+}
+
+/**
+ * Pony Attribute names
+ */
+ export enum PonyAttrName {
+  Generation = 'Generation',
+  Background = 'background',
+  Pony = 'pony',
+  Clothes = 'clothes',
+  Head = 'head',
+  Rune = 'rune',
+  Mouth = 'mouth',
+}
+
 export interface RarityConfig {
   color: string;
   cutoff: number;
@@ -137,4 +167,25 @@ export interface DailyTweet {
  */
 export enum CronJobs {
   SALES_CHECKER = 'Sales Checker',
+}
+
+
+/**
+ * Sale type
+ */
+export interface Sale {
+  id: string,
+  title: string,
+  tokenSymbol: string,
+  tokenPrice: number,
+  usdPrice: string,
+  buyerAddr: string,
+  buyerName?: string,
+  sellerAddr: string,
+  sellerName?: string,
+  txHash: string,
+  cacheKey: string,
+  permalink: string,
+  thumbnail: string,
+  backgroundColor: string,
 }

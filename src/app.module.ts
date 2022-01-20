@@ -5,7 +5,7 @@ import { TwitterModule } from './twitter';
 import { DiscordModule } from './discord/discord.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppConfigModule } from './config';
-//import { EthereumModule } from './ethereum';
+import { EthereumModule } from './ethereum';
 
 @Module({
   imports: [
@@ -13,8 +13,8 @@ import { AppConfigModule } from './config';
     HealthModule,
     TwitterModule,
     DiscordModule,
+    EthereumModule,
     ScheduleModule.forRoot(),
-    //EthereumModule,
   ],
   providers: [AppService],
 })

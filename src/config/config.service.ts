@@ -5,7 +5,7 @@ import {
   DiscordConfig,
   EthereumConfig,
   TwitterConfig,
-  WizardsConfig,
+  CollectionConfig,
 } from '../types';
 import { TwitterOptions } from 'twitter-lite';
 
@@ -23,8 +23,29 @@ export class AppConfigService {
   /**
    * Wizard config
    */
-  public get wizards(): WizardsConfig {
-    return this.configService.get<WizardsConfig>('wizards');
+  public get wizard(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('wizard');
+  }
+
+  /**
+   * Soul config
+   */
+   public get soul(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('soul');
+  }
+
+  /**
+   * Pony config
+   */
+   public get pony(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('pony');
+  }
+
+  /**
+   * Flame config
+   */
+   public get flame(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('flame');
   }
 
   /**
