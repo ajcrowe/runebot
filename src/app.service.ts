@@ -18,22 +18,20 @@ export class AppService {
   constructor(
     protected readonly configService: AppConfigService,
     private readonly _discord: DiscordService,
-    private readonly _schedulerRegistry: SchedulerRegistry,
-
-    //private readonly _twitter: TwitterService,
-    //private readonly _ethereum: EthereumService,
+    private readonly _schedulerRegistry: SchedulerRegistry, //private readonly _twitter: TwitterService, //private readonly _ethereum: EthereumService,
   ) {
-
     const salesChecker = new CronJob(
-      this.configService.bot.salesCheckCron, async () => {
-      this._logger.log(`Running Sales Checker Job`);
-      this._discord.checkSales([
-        this.configService.wizard.openSeaSlug,
-        this.configService.soul.openSeaSlug,
-        this.configService.pony.openSeaSlug,
-        this.configService.flame.openSeaSlug
-      ])
-    });
+      this.configService.bot.salesCheckCron,
+      async () => {
+        this._logger.log(`Running Sales Checker Job`);
+        this._discord.checkSales([
+          this.configService.wizard,
+          this.configService.soul,
+          this.configService.pony,
+          this.configService.flame,
+        ]);
+      },
+    );
 
     this._schedulerRegistry.addCronJob(CronJobs.SALES_CHECKER, salesChecker);
     salesChecker.start();

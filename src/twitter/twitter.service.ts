@@ -41,6 +41,6 @@ export class TwitterService {
   formatTweet(data: DailyTweet): string {
     //todo
     console.log(data);
-    return `tweet...`
+    return `tweet...`;
   }
 }

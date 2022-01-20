@@ -37,7 +37,8 @@ export interface CollectionConfig {
   tokenContract: string;
   tokenAbi: string;
   openSeaSlug: string;
-  ipfsBaseURI?: string;
+  dataURI?: string;
+  imageURI?: string;
   openSeaBaseURI?: string;
 }
 

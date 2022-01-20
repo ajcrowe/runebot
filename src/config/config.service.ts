@@ -30,21 +30,21 @@ export class AppConfigService {
   /**
    * Soul config
    */
-   public get soul(): CollectionConfig {
+  public get soul(): CollectionConfig {
     return this.configService.get<CollectionConfig>('soul');
   }
 
   /**
    * Pony config
    */
-   public get pony(): CollectionConfig {
+  public get pony(): CollectionConfig {
     return this.configService.get<CollectionConfig>('pony');
   }
 
   /**
    * Flame config
    */
-   public get flame(): CollectionConfig {
+  public get flame(): CollectionConfig {
     return this.configService.get<CollectionConfig>('flame');
   }
 
@@ -79,7 +79,7 @@ export class AppConfigService {
    * Is development
    */
   public get isDevelopment(): boolean {
-    return process.env.APP_ENVIRONMENT == 'development' ? true : false
+    return process.env.APP_ENVIRONMENT == 'development' ? true : false;
   }
 
   /**

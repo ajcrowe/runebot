@@ -1,25 +1,27 @@
+import { env } from 'process';
+
 /**
  * Wizard
  */
 export interface Wizard {
-  name: string,
-  serial: string,
-  nameLength: number,
-  traits: WizardTrait[],
-  traitCount: number,
-  backgroundColor: string,
-  maxAffinity: number,
-  affinities: Record<string, unknown>,
+  name: string;
+  serial: string;
+  nameLength: number;
+  traits: WizardTrait[];
+  traitCount: number;
+  backgroundColor: string;
+  maxAffinity: number;
+  affinities: Record<string, unknown>;
 }
 
 /**
  * Wizard Trait
  */
 export interface WizardTrait {
-  name: string,
-  value: string,
-  rarity: number,
-  inline?: boolean,
+  name: string;
+  value: string;
+  rarity: number;
+  inline?: boolean;
 }
 
 /**
@@ -29,25 +31,25 @@ export enum WizardBackground {
   Black = '000000',
   Red = '1e0200',
   Blue = '09071b',
-  Green = '040d04'
+  Green = '040d04',
 }
 
 /**
  * Soul
  */
- export interface Soul {
-  name: string,
-  serial: string,
-  traits: any[],
-  backgroundColor: string,
+export interface Soul {
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
 }
 
 /**
  * Soul Trait
  */
 export interface SoulTrait {
-  trait_type: string,
-  value: string,
+  trait_type: string;
+  value: string;
 }
 
 /**
@@ -67,30 +69,31 @@ export enum SoulAttrName {
   TransmutedNumber = 'Transmuted from number',
   TransmutedName = 'Transmuted from',
   BurnOrder = 'Burn order',
-  Undesirable = 'undesirable'
+  Undesirable = 'undesirable',
 }
 
 /**
  * Pony
  */
 export interface Pony {
-  name: string,
-  serial: string,
-  traits: any[],
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
 }
 
 /**
  * Pony Traits
  */
- export interface PonyTrait {
-  trait_type: string,
-  value: string,
+export interface PonyTrait {
+  trait_type: string;
+  value: string;
 }
 
 /**
  * Pony Attribute names
  */
- export enum PonyAttrName {
+export enum PonyAttrName {
   Generation = 'Generation',
   Background = 'background',
   Pony = 'pony',
@@ -159,7 +162,7 @@ export const rarityRegistry: RarityRegistry = {
  * Daily Tweet status data
  */
 export interface DailyTweet {
-  status: string
+  status: string;
 }
 
 /**
@@ -169,23 +172,30 @@ export enum CronJobs {
   SALES_CHECKER = 'Sales Checker',
 }
 
-
 /**
  * Sale type
  */
 export interface Sale {
-  id: string,
-  title: string,
-  tokenSymbol: string,
-  tokenPrice: number,
-  usdPrice: string,
-  buyerAddr: string,
-  buyerName?: string,
-  sellerAddr: string,
-  sellerName?: string,
-  txHash: string,
-  cacheKey: string,
-  permalink: string,
-  thumbnail: string,
-  backgroundColor: string,
+  id: string;
+  title: string;
+  tokenSymbol: string;
+  tokenPrice: number;
+  usdPrice?: string;
+  buyerAddr: string;
+  buyerName?: string;
+  sellerAddr: string;
+  sellerName?: string;
+  txHash: string;
+  cacheKey: string;
+  permalink: string;
+  thumbnail: string;
+  backgroundColor: string;
+  origin: string;
+}
+
+/**
+ * Token Currency to Symbols
+ */
+export enum TokenSymbols {
+  WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
 }

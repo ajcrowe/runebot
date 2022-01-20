@@ -4,9 +4,7 @@ import { Wizard } from '../types';
 
 @Controller()
 export class DataStoreController {
-  constructor(
-    private readonly service: DataStoreService,
-  ) {}
+  constructor(private readonly service: DataStoreService) {}
 
   @Get('wizard')
   async getWizard(@Query('id') id: string): Promise<Wizard> {

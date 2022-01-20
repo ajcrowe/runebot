@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { 
+import {
   RarityConfig,
   rarityRegistry,
   Wizard,
@@ -30,18 +30,19 @@ export class DataStoreService {
    */
   public async getWizard(id: string): Promise<Wizard> {
     try {
-      const wizardJson = data.wizards[id], traits = [];
+      const wizardJson = data.wizards[id],
+        traits = [];
       let color: string;
       for (const trait in wizardJson.traits) {
-        const [ name, value ] = wizardJson.traits[trait].split(': ', 2);
+        const [name, value] = wizardJson.traits[trait].split(': ', 2);
         if (name === 'background') {
-          color = WizardBackground[value]
+          color = WizardBackground[value];
         }
         traits.push({
           name: name.charAt(0).toUpperCase() + name.substring(1),
           value: value,
           rarity: data.traitOccurences[wizardJson.traits[trait]],
-        })
+        });
       }
       return {
         name: wizardJson.name,
@@ -52,9 +53,8 @@ export class DataStoreService {
         backgroundColor: color,
         maxAffinity: wizardJson.maxAffinity,
         affinities: wizardJson.affinities,
-      }
-    }  
-    catch (error) {
+      };
+    } catch (error) {
       this._logger.error(error);
     }
   }
@@ -70,7 +70,7 @@ export class DataStoreService {
     let rarityName = this.getRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Traits`,
-      value: `${wizard.traitCount} (${(rarity / 100)}%)`,
+      value: `${wizard.traitCount} (${rarity / 100}%)`,
       inline: true,
     });
 
@@ -78,7 +78,7 @@ export class DataStoreService {
     rarityName = this.getRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Name Length`,
-      value: `${wizard.nameLength} (${(rarity / 100)}%)`,
+      value: `${wizard.nameLength} (${rarity / 100}%)`,
       inline: true,
     });
 
@@ -86,7 +86,9 @@ export class DataStoreService {
     rarityName = this.getAffinityRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Affinity`,
-      value: `${wizard.maxAffinity} (${wizard.affinities[wizard.maxAffinity]}/${wizard.traitCount - 1} traits)`,
+      value: `${wizard.maxAffinity} (${
+        wizard.affinities[wizard.maxAffinity]
+      }/${wizard.traitCount - 1} traits)`,
       inline: true,
     });
 
@@ -95,15 +97,18 @@ export class DataStoreService {
         name: `${this.getRarityDescriptor(trait.rarity)} ${trait.name}`,
         value: `${trait.value} (${trait.rarity / 100}%)`,
         inline: true,
-      })
+      });
     }
-    return fields
+    return fields;
   }
 
   /*
-    * Get rarity config for specific trait
-    */
-  getRarityConfig(rarity: number, getCutoff: (config: RarityConfig) => number): RarityConfig {
+   * Get rarity config for specific trait
+   */
+  getRarityConfig(
+    rarity: number,
+    getCutoff: (config: RarityConfig) => number,
+  ): RarityConfig {
     const rarityConfigs: RarityConfig[] = Object.values(rarityRegistry);
     for (const config of rarityConfigs) {
       if (getCutoff(config) >= rarity) {
@@ -114,11 +119,11 @@ export class DataStoreService {
   }
 
   getRarityDescriptor(rarity: number): string {
-    return this.getRarityConfig(rarity, (config) => config.cutoff).name;
+    return this.getRarityConfig(rarity, config => config.cutoff).name;
   }
 
   getAffinityRarityDescriptor(rarity: number): string {
-    return this.getRarityConfig(rarity, (config) => config.affinityCutoff).name;
+    return this.getRarityConfig(rarity, config => config.affinityCutoff).name;
   }
 
   /*
@@ -126,109 +131,123 @@ export class DataStoreService {
    */
   public async checkSoul(id: string): Promise<boolean> {
     try {
-      const url = `https://portal.forgottenrunes.com/api/souls/data/${id}`;
-      const options = {method: 'GET', headers: {Accept: 'application/json'}};
-      const response = await fetch(url, options)
+      const url = `${this.configService.soul.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
       if (response.status == 200) {
         return true;
       } else {
-        return false
+        return false;
       }
-    } catch(err) {
+    } catch (err) {
       this._logger.error(err);
     }
   }
 
-   /*
+  /*
    * get soul
    */
-   public async getSoul(id: string): Promise<Soul> {
+  public async getSoul(id: string): Promise<Soul> {
     try {
-      const url = `https://portal.forgottenrunes.com/api/souls/data/${id}`;
-      const options = {method: 'GET', headers: {Accept: 'application/json'}};
-      const response = await fetch(url, options)
-      const json = await response.json()
+      const url = `${this.configService.soul.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
+      const json = await response.json();
 
-      const attrs: Array<SoulTrait> = json.attributes
+      const attrs: Array<SoulTrait> = json.attributes;
       let background: string,
-          body: string,
-          head: string,
-          prop: string,
-          familiar: string,
-          traitCount: string,
-          affinityCount: string,
-          affinityName: string,
-          transNumber: string,
-          transName: string,
-          undesirable: string,
-          rune: string;
-      const traits = []
+        body: string,
+        head: string,
+        prop: string,
+        familiar: string,
+        traitCount: string,
+        affinityCount: string,
+        affinityName: string,
+        transNumber: string,
+        transName: string,
+        undesirable: string,
+        rune: string;
+      const traits = [];
       for (const attr of attrs) {
         switch (attr.trait_type) {
-          case SoulAttrName["Background"]:
-            background = attr.value
+          case SoulAttrName['Background']:
+            background = attr.value;
             break;
-          case SoulAttrName["Body"]:
-            body = attr.value
+          case SoulAttrName['Body']:
+            body = attr.value;
             break;
-          case SoulAttrName["Head"]:
-            head = attr.value
+          case SoulAttrName['Head']:
+            head = attr.value;
             break;
-          case SoulAttrName["Prop"]:
-            prop = attr.value
+          case SoulAttrName['Prop']:
+            prop = attr.value;
             break;
-          case SoulAttrName["Rune"]:
-            rune = attr.value
+          case SoulAttrName['Rune']:
+            rune = attr.value;
             break;
-          case SoulAttrName["Familiar"]:
-            familiar = attr.value
+          case SoulAttrName['Familiar']:
+            familiar = attr.value;
             break;
-          case SoulAttrName["Affinity"]:
-            affinityName = attr.value
+          case SoulAttrName['Affinity']:
+            affinityName = attr.value;
             break;
-          case SoulAttrName["TraitsCount"]:
-            traitCount = attr.value
+          case SoulAttrName['TraitsCount']:
+            traitCount = attr.value;
             break;
-          case SoulAttrName["TraitsAffinityCount"]:
-            affinityCount = attr.value
+          case SoulAttrName['TraitsAffinityCount']:
+            affinityCount = attr.value;
             break;
-          case SoulAttrName["TransmutedNumber"]:
-            transNumber = attr.value
+          case SoulAttrName['TransmutedNumber']:
+            transNumber = attr.value;
             break;
-          case SoulAttrName["TransmutedName"]:
-            transName = attr.value
+          case SoulAttrName['TransmutedName']:
+            transName = attr.value;
             break;
-          case SoulAttrName["Undesirable"]:
-            undesirable = attr.value
+          case SoulAttrName['Undesirable']:
+            undesirable = attr.value;
         }
       }
-      traits.push({name: 'Transmuted From', value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber})`, inline: false})
-      traits.push({name: 'Background', value: background, inline: true })
+      traits.push({
+        name: 'Transmuted From',
+        value: `[${transName}](https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42/${transNumber})`,
+        inline: false,
+      });
+      traits.push({ name: 'Background', value: background, inline: true });
       if (!undesirable) {
         if (head) {
-          traits.push({name: 'Head', value: head, inline: true })
+          traits.push({ name: 'Head', value: head, inline: true });
         }
-        traits.push({name: 'Body', value: body, inline: true })
+        traits.push({ name: 'Body', value: body, inline: true });
         if (prop) {
-          traits.push({name: 'Prop', value: prop, inline: true })
+          traits.push({ name: 'Prop', value: prop, inline: true });
         }
         if (familiar) {
-          traits.push({name: 'Familiar', value: familiar, inline: true })
+          traits.push({ name: 'Familiar', value: familiar, inline: true });
         }
         if (rune) {
-          traits.push({name: 'Rune', value: rune, inline: true })
+          traits.push({ name: 'Rune', value: rune, inline: true });
         }
         if (affinityName) {
-          traits.push({name: 'Affinity', value: `${affinityName} (${affinityCount}/${traitCount})`, inline: true})
+          traits.push({
+            name: 'Affinity',
+            value: `${affinityName} (${affinityCount}/${traitCount})`,
+            inline: true,
+          });
         }
       }
       return {
         serial: id,
         name: json.name,
         backgroundColor: json.background_color,
-        traits: traits
-      }
-    } catch(err) {
+        traits: traits,
+      };
+    } catch (err) {
       this._logger.error(err);
     }
   }
@@ -238,66 +257,70 @@ export class DataStoreService {
    */
   public async getPony(id: string): Promise<Pony> {
     try {
-      const url = `https://portal.forgottenrunes.com/api/shadowfax/data/${id}`;
-      const options = {method: 'GET', headers: {Accept: 'application/json'}};
-      const response = await fetch(url, options)
-      const json = await response.json()
+      const url = `${this.configService.pony.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
+      const json = await response.json();
 
-      const attrs: Array<PonyTrait> = json.attributes
+      const attrs: Array<PonyTrait> = json.attributes;
       let generation: string,
-          background: string,
-          pony: string,
-          clothes: string,
-          head: string,
-          rune: string,
-          mouth: string;
-      const traits = []
+        background: string,
+        pony: string,
+        clothes: string,
+        head: string,
+        rune: string,
+        mouth: string;
+      const traits = [];
       for (const attr of attrs) {
         switch (attr.trait_type) {
-          case PonyAttrName["Generation"]:
-            generation = attr.value.toString()
+          case PonyAttrName['Generation']:
+            generation = attr.value.toString();
             break;
-          case PonyAttrName["Background"]:
-            background = attr.value
+          case PonyAttrName['Background']:
+            background = attr.value;
             break;
-          case PonyAttrName["Pony"]:
-            pony = attr.value
+          case PonyAttrName['Pony']:
+            pony = attr.value;
             break;
-          case PonyAttrName["Clothes"]:
-            clothes = attr.value
+          case PonyAttrName['Clothes']:
+            clothes = attr.value;
             break;
-          case PonyAttrName["Head"]:
-            head = attr.value
+          case PonyAttrName['Head']:
+            head = attr.value;
             break;
-          case PonyAttrName["Rune"]:
-            rune = attr.value
+          case PonyAttrName['Rune']:
+            rune = attr.value;
             break;
-          case PonyAttrName["Mouth"]:
-            mouth = attr.value
+          case PonyAttrName['Mouth']:
+            mouth = attr.value;
             break;
         }
       }
-      traits.push({name: 'Generation', value: generation, inline: true })
-      traits.push({name: 'Background', value: background, inline: true })
-      traits.push({name: 'Pony', value: pony, inline: true })
+      traits.push({ name: 'Generation', value: generation, inline: true });
+      traits.push({ name: 'Background', value: background, inline: true });
+      traits.push({ name: 'Pony', value: pony, inline: true });
       if (head) {
-        traits.push({name: 'Head', value: head, inline: true })
+        traits.push({ name: 'Head', value: head, inline: true });
       }
       if (rune) {
-        traits.push({name: 'Rune', value: rune, inline: true })
+        traits.push({ name: 'Rune', value: rune, inline: true });
       }
       if (clothes) {
-        traits.push({name: 'Clothes', value: clothes, inline: true })
+        traits.push({ name: 'Clothes', value: clothes, inline: true });
       }
       if (mouth) {
-        traits.push({name: 'Mouth', value: mouth, inline: true })
+        traits.push({ name: 'Mouth', value: mouth, inline: true });
       }
       return {
         serial: id,
         name: json.name,
-        traits: traits
-      }
-    } catch(err) {
+        traits: traits,
+        backgroundColor: '000000',
+      };
+    } catch (err) {
       this._logger.error(err);
     }
   }

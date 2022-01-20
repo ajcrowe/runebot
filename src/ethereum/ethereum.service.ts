@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { WebSocketProvider } from '@ethersproject/providers';
 import { AppConfigService } from '../config';
 import { ethers } from 'ethers';
-import soulAbi from './abis/souls.json'
+import soulAbi from './abis/souls.json';
 
 @Injectable()
 export class EthereumService {
@@ -19,7 +19,7 @@ export class EthereumService {
   }
 
   public async getSoulIds(): Promise<Array<number>> {
-    let ids: Array<number>
+    let ids: Array<number>;
 
     const contract = new ethers.Contract(
       this.configService.soul.tokenContract,
@@ -27,8 +27,11 @@ export class EthereumService {
       this.provider,
     );
     const txns = await contract.queryFilter(
-      contract.filters.Transfer('0x0000000000000000000000000000000000000000', null),
-      13512483
+      contract.filters.Transfer(
+        '0x0000000000000000000000000000000000000000',
+        null,
+      ),
+      13512483,
     );
 
     //console.log(txns);
