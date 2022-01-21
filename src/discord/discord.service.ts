@@ -226,8 +226,8 @@ export class DiscordService {
         usdPrice: `($${(price * sale.payment_token.usd_price).toFixed(2)} USD)`,
         buyerAddr: sale.winner_account.address,
         buyerName:
-          sale.seller.user && sale.seller.user.username
-            ? `(${sale.seller.user.username})`
+          sale.winner_account.user && sale.winner_account.user.username
+            ? `(${sale.winner_account.user.username})`
             : ``,
         sellerAddr: sale.seller.address,
         sellerName:
