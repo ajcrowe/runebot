@@ -231,8 +231,8 @@ export class DiscordService {
             : ``,
         sellerAddr: sale.seller.address,
         sellerName:
-          sale.winner_account.user && sale.winner_account.user.username
-            ? `(${sale.winner_account.user.username})`
+          sale.seller.user && sale.seller.user.username
+            ? `(${sale.seller.user.username})`
             : ``,
         txHash: sale.transaction.transaction_hash,
         cacheKey: cacheKey,
