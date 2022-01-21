@@ -190,7 +190,12 @@ export interface Sale {
   permalink: string;
   thumbnail: string;
   backgroundColor: string;
-  origin: string;
+  market: string;
+}
+
+export enum MarketIcons {
+  OpenSea = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/os.png',
+  LooksRare = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/lr.png',
 }
 
 /**

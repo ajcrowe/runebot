@@ -9,6 +9,7 @@ import {
   Pony,
   Sale,
   CollectionConfig,
+  MarketIcons,
 } from 'src/types';
 import { DataStoreService } from '../datastore';
 import fetch from 'node-fetch';
@@ -85,7 +86,7 @@ export class DiscordService {
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
       const sales: Array<Sale> = [];
-      //sales.push(...(await this.getOSSales(c)));
+      sales.push(...(await this.getOSSales(c)));
       sales.push(...(await this.getLRSales(c)));
 
       for (const sale of sales) {
@@ -95,19 +96,7 @@ export class DiscordService {
           .setURL(sale.permalink)
           .setThumbnail(sale.thumbnail)
           .addFields(this.getStandardFields(sale))
-          .setFooter(
-            sale.origin === 'OS'
-              ? {
-                  text: 'OpenSea',
-                  iconURL:
-                    'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/lr.png',
-                }
-              : {
-                  text: 'LooksRare',
-                  iconURL:
-                    'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/os.png',
-                }
-          );
+          .setFooter(sale.market, MarketIcons[sale.market]);
 
         this.postSale(embed);
         this.cacheSale(sale.cacheKey);
@@ -138,7 +127,7 @@ export class DiscordService {
       const response = await fetch(url, options);
       const json = await response.json();
       const sales = await this.createSalesFromOS(json.asset_events);
-      return sales;
+      return sales.reverse();
     } catch (err) {
       this._logger.error(err);
     }
@@ -148,13 +137,13 @@ export class DiscordService {
    * Get LR sales for specific collection
    */
   public async getLRSales(collection: CollectionConfig): Promise<Sale[]> {
-    console.log(collection);
     const LR_FRAGMENTS = gql`
       fragment EventFragment on Event {
         id
         from
         to
         hash
+        createdAt
         token {
           tokenId
           image
@@ -211,9 +200,9 @@ export class DiscordService {
         response.data.events,
         collection,
       );
-      return sales;
+      return sales.reverse();
     } catch (error) {
-      console.log(error.networkError.result);
+      this._logger.error(error.networkError.result);
     }
   }
 
@@ -250,7 +239,7 @@ export class DiscordService {
         permalink: sale.asset.permalink,
         thumbnail: sale.asset.image_preview_url,
         backgroundColor: sale.asset.background_color || '000000',
-        origin: 'OS',
+        market: 'OpenSea',
       });
     }
     return sales;
@@ -271,25 +260,27 @@ export class DiscordService {
       if (this._recentTransactions.includes(cacheKey)) {
         break;
       }
-      sales.push({
-        id: sale.token.tokenId,
-        title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
-        tokenSymbol: 'WETH',
-        tokenPrice: price,
-        usdPrice: ``,
-        buyerAddr: sale.to,
-        buyerName: ``,
-        sellerAddr: sale.from,
-        sellerName: ``,
-        txHash: sale.hash,
-        cacheKey: cacheKey,
-        permalink: `https://looksrare.org/collections/${sale.collection.address}/${sale.token.tokenId}`,
-        thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
-        backgroundColor: '000000',
-        origin: 'LR',
-      });
+      const time = Date.now() - Date.parse(sale.createdAt);
+      if (time < this.configService.bot.salesLookbackSeconds * 1000) {
+        sales.push({
+          id: sale.token.tokenId,
+          title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
+          tokenSymbol: 'WETH',
+          tokenPrice: price,
+          usdPrice: ``,
+          buyerAddr: sale.to,
+          buyerName: ``,
+          sellerAddr: sale.from,
+          sellerName: ``,
+          txHash: sale.hash,
+          cacheKey: cacheKey,
+          permalink: `https://looksrare.org/collections/${sale.collection.address}/${sale.token.tokenId}`,
+          thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
+          backgroundColor: '000000',
+          market: 'LooksRare',
+        });
+      }
     }
-    console.log(sales);
     return sales;
   }
 
