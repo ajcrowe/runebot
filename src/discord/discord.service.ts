@@ -127,6 +127,7 @@ export class DiscordService {
       const response = await fetch(url, options);
       const json = await response.json();
       const sales = await this.createSalesFromOS(json.asset_events);
+      this._logger.log(`Got ${sales.length} sales (${collection.openSeaSlug}/OpenSea)`);
       return sales.reverse();
     } catch (err) {
       this._logger.error(err);
@@ -200,6 +201,7 @@ export class DiscordService {
         response.data.events,
         collection,
       );
+      this._logger.log(`Got ${sales.length} sales (${collection.openSeaSlug}/LooksRare)`);
       return sales.reverse();
     } catch (error) {
       this._logger.error(error.networkError.result);
@@ -261,7 +263,9 @@ export class DiscordService {
         break;
       }
       const time = Date.now() - Date.parse(sale.createdAt);
-      if (time < this.configService.bot.salesLookbackSeconds * 1000) {
+      const timeSec = time / 1000;
+      this._logger.log(`Sale occured ${timeSec} seconds ago`)
+      if (timeSec < this.configService.bot.salesLookbackSeconds) {
         sales.push({
           id: sale.token.tokenId,
           title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
