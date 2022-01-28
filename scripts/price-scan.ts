@@ -66,7 +66,13 @@ async function get100Aff(traits = 5) {
 async function getPrices(ids: number[]) {
   for (const id of ids) {
     const url = `https://api.opensea.io/api/v1/assets?token_ids=${id}&order_direction=desc&offset=0&limit=1&collection=forgottenruneswizardscult`;
-    const options = {method: 'GET', headers: {Accept: 'application/json'}};
+    const options = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'X-API-KEY': process.env.OPENSEA_API_KEY,
+      }
+    };
     try {
       const response = await fetch(url, options);
       const osWiz = (await response.json()).assets[0];

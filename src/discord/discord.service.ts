@@ -10,6 +10,7 @@ import {
   Sale,
   CollectionConfig,
   MarketIcons,
+  LR_GET_SALES
 } from 'src/types';
 import { DataStoreService } from '../datastore';
 import fetch from 'node-fetch';
@@ -19,7 +20,19 @@ import {
   InMemoryCache,
   gql,
   NormalizedCacheObject,
+  DefaultOptions,
 } from '@apollo/client/core';
+
+const apolloDefaultOptions: DefaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'ignore',
+  },
+  query: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'all',
+  },
+}
 
 @Injectable()
 export class DiscordService {
@@ -27,6 +40,7 @@ export class DiscordService {
   private readonly _client = new Discord.Client();
   private readonly _rangeRegex = new RegExp(`^${toRegexRange('1', '10000')}$`);
   private readonly _lrClient: ApolloClient<NormalizedCacheObject>;
+  private readonly _nftxClient: ApolloClient<NormalizedCacheObject>;
 
   protected _salesChannels: Array<TextChannel>;
   protected _recentTransactions: Array<string>;
@@ -44,6 +58,12 @@ export class DiscordService {
     this._lrClient = new ApolloClient({
       uri: this.configService.bot.looksRareApi,
       cache: new InMemoryCache(),
+      defaultOptions: apolloDefaultOptions,
+    });
+    this._nftxClient = new ApolloClient({
+      uri: this.configService.bot.nftxApi,
+      cache: new InMemoryCache(),
+      defaultOptions: apolloDefaultOptions,
     });
     this._client.login(token);
     this._client.on('ready', async () => {
@@ -81,6 +101,21 @@ export class DiscordService {
   }
 
   /**
+   * Get Currency Price
+   */
+  public async getPrice(token: string, currency: string): Promise<number> {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=${currency}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    };
+    const response = await fetch(url, options);
+    const json = await response.json();
+    return json[token][currency];
+  }
+  /**
    * Check for Sales
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
@@ -88,6 +123,9 @@ export class DiscordService {
       const sales: Array<Sale> = [];
       sales.push(...(await this.getOSSales(c)));
       sales.push(...(await this.getLRSales(c)));
+      if (c.openSeaSlug === 'forgottenruneswizardscult') {
+        sales.push(...(await this.getNFTXSales(c)));
+      }
 
       for (const sale of sales) {
         const embed = new MessageEmbed()
@@ -138,51 +176,6 @@ export class DiscordService {
    * Get LR sales for specific collection
    */
   public async getLRSales(collection: CollectionConfig): Promise<Sale[]> {
-    const LR_FRAGMENTS = gql`
-      fragment EventFragment on Event {
-        id
-        from
-        to
-        hash
-        createdAt
-        token {
-          tokenId
-          image
-          name
-        }
-        collection {
-          address
-          name
-          description
-          totalSupply
-          logo
-          floorOrder {
-            price
-          }
-        }
-        order {
-          isOrderAsk
-          price
-          endTime
-          currency
-          strategy
-          status
-          params
-        }
-      }
-    `;
-    const LR_GET_SALES = gql`
-      query GetEventsQuery(
-        $pagination: PaginationInput
-        $filter: EventFilterInput
-      ) {
-        events(pagination: $pagination, filter: $filter) {
-          ...EventFragment
-        }
-      }
-      ${LR_FRAGMENTS}
-    `;
-
     const queryVariables = {
       filter: {
         collection: collection.tokenContract,
@@ -205,6 +198,58 @@ export class DiscordService {
       return sales.reverse();
     } catch (error) {
       this._logger.error(error.networkError.result);
+    }
+  }
+ 
+  /**
+   * Get OS sales for specific collection
+   */
+   public async getNFTXSales(collection: CollectionConfig): Promise<Sale[]> {
+    const timestamp = Math.floor(Date.now()/1000) - Number(this.configService.bot.salesLookbackSeconds);
+    const NFTX_GET_REDEEM = gql`
+    {
+      redeems(
+        first: 100,
+        where: { date_gt: "${timestamp}", vault: "${collection.nftxVaultContract}" },
+        orderBy: date,
+        orderDirection: desc
+      ) {
+        id
+        vault {
+          id
+          vaultId
+          token {
+            symbol
+          }
+          asset {
+            id
+          }
+        }
+        date
+        nftIds
+        specificIds
+        randomCount
+        targetCount
+        feeReceipt {
+          amount
+          date
+        }
+      }
+    }`
+
+    //
+    try {
+      const response = await this._nftxClient.query({
+        query: NFTX_GET_REDEEM,
+      });
+      const sales = await this.createSalesFromNFTX(
+        response.data.redeems,
+        collection,
+      );
+      this._logger.log(`Got ${sales.length} sales (${collection.openSeaSlug}/NFTx)`);
+      return sales.reverse();
+    } catch (error) {
+      this._logger.error(error);
     }
   }
 
@@ -254,6 +299,7 @@ export class DiscordService {
     lrSales: any[],
     c: CollectionConfig,
   ): Promise<Sale[]> {
+    const ethPrice = await this.getPrice('ethereum', 'usd')
     const sales: Array<Sale> = [];
     for (const sale of lrSales) {
       const price = sale.order.price / 10 ** 18;
@@ -264,14 +310,13 @@ export class DiscordService {
       }
       const time = Date.now() - Date.parse(sale.createdAt);
       const timeSec = time / 1000;
-      this._logger.log(`Sale occured ${timeSec} seconds ago`)
       if (timeSec < this.configService.bot.salesLookbackSeconds) {
         sales.push({
           id: sale.token.tokenId,
           title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
           tokenSymbol: 'WETH',
           tokenPrice: price,
-          usdPrice: ``,
+          usdPrice: `(${(price * ethPrice).toFixed(2)} USD)`,
           buyerAddr: sale.to,
           buyerName: ``,
           sellerAddr: sale.from,
@@ -288,6 +333,46 @@ export class DiscordService {
     return sales;
   }
 
+  /**
+   * Process NFTX response into Sale[] object
+   */
+   public async createSalesFromNFTX(
+    redeems: any[],
+    c: CollectionConfig,
+  ): Promise<Sale[]> {
+    const price = await this.getPrice('wizard-vault-nftx', 'eth') * 1.05
+    const usdPrice = price * await this.getPrice('ethereum', 'usd')
+
+    const sales: Array<Sale> = [];
+    for (const sale of redeems) {
+      const cacheKey = sale.id;
+      // check if sale already in broadcast
+      if (this._recentTransactions.includes(cacheKey)) {
+        break;
+      }
+      for (const nft of sale.nftIds) {
+        const wizard: Wizard = await this.dataStoreService.getWizard(nft);
+        sales.push({
+          id: wizard.serial,
+          title: `New Sale: ${wizard.name} (#${wizard.serial})`,
+          tokenSymbol: 'ETH',
+          tokenPrice: price,
+          usdPrice: `(${usdPrice.toFixed(2)} USD)`,
+          buyerAddr: (await this.etherService.getOwner(c, wizard.serial)),
+          buyerName: ``,
+          sellerAddr: c.nftxVaultContract,
+          sellerName: ``,
+          txHash: sale.id,
+          cacheKey: cacheKey,
+          permalink: `https://nftx.io/vault/${sale.vault.id}/${wizard.serial}`,
+          thumbnail: `${c.imageURI}/${wizard.serial}.png`,
+          backgroundColor: '000000',
+          market: 'NFTX',
+        });
+      }
+    }
+    return sales;
+  }
   /*
    * get standard fields for each sale
    */
@@ -296,7 +381,7 @@ export class DiscordService {
     return [
       {
         name: 'Amount',
-        value: `${sale.tokenPrice} ${sale.tokenSymbol} ${sale.usdPrice}`,
+        value: `${sale.tokenPrice.toFixed(2)} ${sale.tokenSymbol} ${sale.usdPrice}`,
         inline: false,
       },
       {

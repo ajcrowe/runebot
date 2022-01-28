@@ -196,6 +196,7 @@ export interface Sale {
 export enum MarketIcons {
   OpenSea = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/os.png',
   LooksRare = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/lr.png',
+  NFTX = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/nft-x.png',
 }
 
 /**

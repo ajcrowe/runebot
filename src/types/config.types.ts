@@ -20,6 +20,7 @@ export interface BotConfig {
   salesLookbackSeconds: number;
   openSeaApiKey: string;
   looksRareApi: string;
+  nftxApi: string;
 }
 
 /**
@@ -36,6 +37,7 @@ export interface EthereumConfig {
 export interface CollectionConfig {
   tokenContract: string;
   tokenAbi: string;
+  nftxVaultContract?: string;
   openSeaSlug: string;
   dataURI?: string;
   imageURI?: string;

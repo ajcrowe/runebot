@@ -48,4 +48,20 @@ export class EthereumService {
 
     return ids;
   }
+
+  public async getOwner(c: CollectionConfig, id: string): Promise<string> {
+    const rawdata = await fs.readFileSync(`./src/ethereum/${c.tokenAbi}`);
+    const abi = await JSON.parse(rawdata.toString());
+
+    const contract = new ethers.Contract(
+      c.tokenContract,
+      abi,
+      this.provider,
+    );
+    const owner = await contract.ownerOf(
+      Number(id)
+    );
+
+    return owner;
+  }
 }
