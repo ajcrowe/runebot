@@ -50,7 +50,7 @@ export class EthereumService {
   }
 
   public async getOwner(c: CollectionConfig, id: string): Promise<string> {
-    const rawdata = await fs.readFileSync(`./src/ethereum/${c.tokenAbi}`);
+    const rawdata = await fs.readFileSync(`./${c.tokenAbi}`);
     const abi = await JSON.parse(rawdata.toString());
 
     const contract = new ethers.Contract(
