@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WebSocketProvider } from '@ethersproject/providers';
 import { AppConfigService } from '../config';
-import { ethers } from 'ethers';
+import { ethers, utils } from 'ethers';
 //import soulAbi from './abis/souls.json';
 import { CollectionConfig } from 'src/types';
 import fs from 'fs';
@@ -63,5 +63,11 @@ export class EthereumService {
     );
 
     return owner;
+  }
+
+  public async getDomain(address: string): Promise<string> {
+    const domain = await this.provider.lookupAddress(utils.getAddress(address));
+    this._logger.log(`${address} resolves to ${domain}`);
+    return domain != null ? domain : ``;
   }
 }

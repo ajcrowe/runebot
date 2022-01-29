@@ -265,6 +265,9 @@ export class DiscordService {
       if (this._recentTransactions.includes(cacheKey)) {
         break;
       }
+      const buyerName = await this.etherService.getDomain(sale.winner_account.address);
+      const sellerName = await this.etherService.getDomain(sale.seller.address);
+
       sales.push({
         id: sale.asset.token_id,
         title: `New Sale: ${sale.asset.name} (#${sale.asset.token_id})`,
@@ -275,12 +278,12 @@ export class DiscordService {
         buyerName:
           sale.winner_account.user && sale.winner_account.user.username
             ? `(${sale.winner_account.user.username})`
-            : ``,
+            : buyerName ? `(${buyerName})` : ``,
         sellerAddr: sale.seller.address,
         sellerName:
           sale.seller.user && sale.seller.user.username
             ? `(${sale.seller.user.username})`
-            : ``,
+            : sellerName ? `(${sellerName})` : ``,
         txHash: sale.transaction.transaction_hash,
         cacheKey: cacheKey,
         permalink: sale.asset.permalink,
@@ -310,6 +313,8 @@ export class DiscordService {
       }
       const time = Date.now() - Date.parse(sale.createdAt);
       const timeSec = time / 1000;
+      const buyerName = await this.etherService.getDomain(sale.to);
+      const sellerName = await this.etherService.getDomain(sale.from);
       if (timeSec < this.configService.bot.salesLookbackSeconds) {
         sales.push({
           id: sale.token.tokenId,
@@ -318,9 +323,9 @@ export class DiscordService {
           tokenPrice: price,
           usdPrice: `(${(price * ethPrice).toFixed(2)} USD)`,
           buyerAddr: sale.to,
-          buyerName: ``,
+          buyerName: buyerName ? `(${buyerName})` : ``,
           sellerAddr: sale.from,
-          sellerName: ``,
+          sellerName: sellerName ? `(${sellerName})` : ``,
           txHash: sale.hash,
           cacheKey: cacheKey,
           permalink: `https://looksrare.org/collections/${sale.collection.address}/${sale.token.tokenId}`,
@@ -352,14 +357,16 @@ export class DiscordService {
       }
       for (const nft of sale.nftIds) {
         const wizard: Wizard = await this.dataStoreService.getWizard(nft);
+        const buyerAddr = await this.etherService.getOwner(c, wizard.serial);
+        const buyerName = await this.etherService.getDomain(buyerAddr);
         sales.push({
           id: wizard.serial,
           title: `New Sale: ${wizard.name} (#${wizard.serial})`,
           tokenSymbol: 'ETH',
           tokenPrice: price,
           usdPrice: `(${usdPrice.toFixed(2)} USD)`,
-          buyerAddr: (await this.etherService.getOwner(c, wizard.serial)),
-          buyerName: ``,
+          buyerAddr: buyerAddr,
+          buyerName: buyerName ? `(${buyerName})` : ``,
           sellerAddr: c.nftxVaultContract,
           sellerName: ``,
           txHash: sale.id,
