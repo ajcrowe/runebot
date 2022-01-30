@@ -172,7 +172,7 @@ export class DiscordService {
   public async getOSSales(collection: CollectionConfig): Promise<void> {
     try {
       // wait random time to avoid spamming OS
-      await this.sleep(Math.floor(Math.random() * 120 * 1000));
+      await this.sleep(Math.floor(Math.random() * 60 * 1000));
       // look back window for query
       const timestamp = new Date(
         Date.now() - Number(this.configService.bot.salesLookbackSeconds) * 1000,

@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { WebSocketProvider } from '@ethersproject/providers';
 import { AppConfigService } from '../config';
 import { ethers, utils } from 'ethers';
-//import soulAbi from './abis/souls.json';
 import { CollectionConfig } from 'src/types';
 import fs from 'fs';
 
@@ -34,8 +33,6 @@ export class EthereumService {
       ),
       13512483,
     );
-
-    //console.log(txns);
 
     for (const txn of txns) {
       ids.push(txn.args.tokenId);
