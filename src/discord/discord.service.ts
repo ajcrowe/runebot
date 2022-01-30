@@ -81,16 +81,20 @@ export class DiscordService {
   /**
    * Post a sale
    */
-  public postSale(embed: MessageEmbed): void {
+  public async postSale(embed: MessageEmbed): Promise<void> {
     for (const channel of this._salesChannels) {
-      channel.send(embed);
+      try {
+        channel.send(embed);
+      } catch (err) {
+        this._logger.error(err);
+      }
     }
   }
 
   /**
    * Cache sale
    */
-  public cacheSale(cacheKey: string): void {
+  public async cacheSale(cacheKey: string): Promise<void> {
     this._recentTransactions.push(cacheKey);
     // trim cache if longer than 100
     if (this._recentTransactions.length > 100) {
@@ -124,7 +128,7 @@ export class DiscordService {
    * Post Sales
    */
 
-  public postSales(sales: Sale[]): void {
+  public async postSales(sales: Sale[]): Promise<void> {
     for (const sale of sales) {
       const embed = new MessageEmbed()
         .setColor(sale.backgroundColor)
@@ -134,8 +138,8 @@ export class DiscordService {
         .addFields(this.getStandardFields(sale))
         .setFooter(sale.market, MarketIcons[sale.market]);
 
-      this.postSale(embed);
-      this.cacheSale(sale.cacheKey);
+      await this.postSale(embed);
+      await this.cacheSale(sale.cacheKey);
     }
   }
 
@@ -144,24 +148,10 @@ export class DiscordService {
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
-      const sales: Array<Sale> = [];
       this.getOSSales(c);
       this.getLRSales(c);
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
         this.getNFTXSales(c);
-      }
-
-      for (const sale of sales) {
-        const embed = new MessageEmbed()
-          .setColor(sale.backgroundColor)
-          .setTitle(sale.title)
-          .setURL(sale.permalink)
-          .setThumbnail(sale.thumbnail)
-          .addFields(this.getStandardFields(sale))
-          .setFooter(sale.market, MarketIcons[sale.market]);
-
-        this.postSale(embed);
-        this.cacheSale(sale.cacheKey);
       }
     }
   }
@@ -186,14 +176,14 @@ export class DiscordService {
           'X-API-KEY': this.configService.bot.openSeaApiKey,
         },
       };
-      this._logger.log(`${collection.openSeaSlug}/OpenSea: checking for sales`);
+      this._logger.log(`Checking for sales ${collection.openSeaSlug}/OpenSea`);
       const response = await fetch(url, options);
       const json = await response.json();
       const sales = await this.createSalesFromOS(json.asset_events);
       this._logger.log(
-        `${collection.openSeaSlug}/OpenSea: found ${sales.length} sales`,
+        `Found ${sales.length} sales ${collection.openSeaSlug}/OpenSea`,
       );
-      this.postSales(sales.reverse());
+      await this.postSales(sales.reverse());
     } catch (err) {
       this._logger.error(err);
     }
@@ -214,7 +204,7 @@ export class DiscordService {
     };
     try {
       this._logger.log(
-        `${collection.openSeaSlug}/LooksRare: checking for sales`,
+        `Checking for sales ${collection.openSeaSlug}/LooksRare`,
       );
       const response = await this._lrClient.query({
         query: LR_GET_SALES,
@@ -228,9 +218,9 @@ export class DiscordService {
         collection,
       );
       this._logger.log(
-        `${collection.openSeaSlug}/LooksRare: found ${sales.length} sales`,
+        `Found ${sales.length} sales ${collection.openSeaSlug}/LooksRare`,
       );
-      this.postSales(sales.reverse());
+      await this.postSales(sales.reverse());
     } catch (error) {
       this._logger.error(error.networkError.result);
     }
@@ -276,7 +266,7 @@ export class DiscordService {
 
     //
     try {
-      this._logger.log(`${collection.openSeaSlug}/NFTx: checking for sales`);
+      this._logger.log(`Checking for sales${collection.openSeaSlug}/NFTx`);
       const response = await this._nftxClient.query({
         query: NFTX_GET_REDEEM,
       });
@@ -288,9 +278,9 @@ export class DiscordService {
         collection,
       );
       this._logger.log(
-        `${collection.openSeaSlug}/NFTx: found ${sales.length} sales`,
+        `Found ${sales.length} sales ${collection.openSeaSlug}/NFTx`,
       );
-      this.postSales(sales.reverse());
+      await this.postSales(sales.reverse());
     } catch (error) {
       this._logger.error(error);
     }
