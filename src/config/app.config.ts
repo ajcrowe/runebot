@@ -7,14 +7,18 @@ export default (): AppConfig => ({
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
     looksRareApi:
       process.env.LOOKS_RARE_API || 'https://api.looksrare.org/graphql',
-    nftxApi: process.env.NFTX_API || 'https://query.graph.nftx.xyz/subgraphs/id/QmNs1SffouVn8iCsRK262j7JqsRMhZjR2EVacZwNH3CCbr',
+    nftxApi:
+      process.env.NFTX_API ||
+      'https://query.graph.nftx.xyz/subgraphs/id/QmNs1SffouVn8iCsRK262j7JqsRMhZjR2EVacZwNH3CCbr',
   },
   wizard: {
     tokenContract:
       process.env.WIZARD_CONTRACT ||
       '0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',
     tokenAbi: 'abis/wizards.json',
-    nftxVaultContract: process.env.WIZARD_NFTX_VAULT || '0x87931e7ad81914e7898d07c68f145fc0a553d8fb',
+    nftxVaultContract:
+      process.env.WIZARD_NFTX_VAULT ||
+      '0x87931e7ad81914e7898d07c68f145fc0a553d8fb',
     openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',
     dataURI:
       process.env.WIZARD_DATA_URI ||

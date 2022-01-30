@@ -10,7 +10,7 @@ import {
   Sale,
   CollectionConfig,
   MarketIcons,
-  LR_GET_SALES
+  LR_GET_SALES,
 } from 'src/types';
 import { DataStoreService } from '../datastore';
 import fetch from 'node-fetch';
@@ -32,7 +32,7 @@ const apolloDefaultOptions: DefaultOptions = {
     fetchPolicy: 'no-cache',
     errorPolicy: 'all',
   },
-}
+};
 
 @Injectable()
 export class DiscordService {
@@ -111,20 +111,44 @@ export class DiscordService {
         Accept: 'application/json',
       },
     };
-    const response = await fetch(url, options);
-    const json = await response.json();
-    return json[token][currency];
+    try {
+      const response = await fetch(url, options);
+      const json = await response.json();
+      return json[token][currency];
+    } catch (err) {
+      this._logger.error(err);
+    }
   }
+
+  /**
+   * Post Sales
+   */
+
+  public postSales(sales: Sale[]): void {
+    for (const sale of sales) {
+      const embed = new MessageEmbed()
+        .setColor(sale.backgroundColor)
+        .setTitle(sale.title)
+        .setURL(sale.permalink)
+        .setThumbnail(sale.thumbnail)
+        .addFields(this.getStandardFields(sale))
+        .setFooter(sale.market, MarketIcons[sale.market]);
+
+      this.postSale(embed);
+      this.cacheSale(sale.cacheKey);
+    }
+  }
+
   /**
    * Check for Sales
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
       const sales: Array<Sale> = [];
-      sales.push(...(await this.getOSSales(c)));
-      sales.push(...(await this.getLRSales(c)));
+      this.getOSSales(c);
+      this.getLRSales(c);
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
-        sales.push(...(await this.getNFTXSales(c)));
+        this.getNFTXSales(c);
       }
 
       for (const sale of sales) {
@@ -145,7 +169,7 @@ export class DiscordService {
   /**
    * Get OS sales for specific collection
    */
-  public async getOSSales(collection: CollectionConfig): Promise<Sale[]> {
+  public async getOSSales(collection: CollectionConfig): Promise<void> {
     try {
       // wait random time to avoid spamming OS
       await this.sleep(Math.floor(Math.random() * 120 * 1000));
@@ -162,11 +186,14 @@ export class DiscordService {
           'X-API-KEY': this.configService.bot.openSeaApiKey,
         },
       };
+      this._logger.log(`${collection.openSeaSlug}/OpenSea: checking for sales`);
       const response = await fetch(url, options);
       const json = await response.json();
       const sales = await this.createSalesFromOS(json.asset_events);
-      this._logger.log(`Got ${sales.length} sales (${collection.openSeaSlug}/OpenSea)`);
-      return sales.reverse();
+      this._logger.log(
+        `${collection.openSeaSlug}/OpenSea: found ${sales.length} sales`,
+      );
+      this.postSales(sales.reverse());
     } catch (err) {
       this._logger.error(err);
     }
@@ -175,7 +202,7 @@ export class DiscordService {
   /**
    * Get LR sales for specific collection
    */
-  public async getLRSales(collection: CollectionConfig): Promise<Sale[]> {
+  public async getLRSales(collection: CollectionConfig): Promise<void> {
     const queryVariables = {
       filter: {
         collection: collection.tokenContract,
@@ -186,26 +213,36 @@ export class DiscordService {
       },
     };
     try {
+      this._logger.log(
+        `${collection.openSeaSlug}/LooksRare: checking for sales`,
+      );
       const response = await this._lrClient.query({
         query: LR_GET_SALES,
         variables: queryVariables,
       });
+      if (response.error) {
+        this._logger.debug(response.error);
+      }
       const sales = await this.createSalesFromLR(
         response.data.events,
         collection,
       );
-      this._logger.log(`Got ${sales.length} sales (${collection.openSeaSlug}/LooksRare)`);
-      return sales.reverse();
+      this._logger.log(
+        `${collection.openSeaSlug}/LooksRare: found ${sales.length} sales`,
+      );
+      this.postSales(sales.reverse());
     } catch (error) {
       this._logger.error(error.networkError.result);
     }
   }
- 
+
   /**
    * Get OS sales for specific collection
    */
-   public async getNFTXSales(collection: CollectionConfig): Promise<Sale[]> {
-    const timestamp = Math.floor(Date.now()/1000) - Number(this.configService.bot.salesLookbackSeconds);
+  public async getNFTXSales(collection: CollectionConfig): Promise<void> {
+    const timestamp =
+      Math.floor(Date.now() / 1000) -
+      Number(this.configService.bot.salesLookbackSeconds);
     const NFTX_GET_REDEEM = gql`
     {
       redeems(
@@ -235,19 +272,25 @@ export class DiscordService {
           date
         }
       }
-    }`
+    }`;
 
     //
     try {
+      this._logger.log(`${collection.openSeaSlug}/NFTx: checking for sales`);
       const response = await this._nftxClient.query({
         query: NFTX_GET_REDEEM,
       });
+      if (response.error) {
+        this._logger.debug(response.error);
+      }
       const sales = await this.createSalesFromNFTX(
         response.data.redeems,
         collection,
       );
-      this._logger.log(`Got ${sales.length} sales (${collection.openSeaSlug}/NFTx)`);
-      return sales.reverse();
+      this._logger.log(
+        `${collection.openSeaSlug}/NFTx: found ${sales.length} sales`,
+      );
+      this.postSales(sales.reverse());
     } catch (error) {
       this._logger.error(error);
     }
@@ -265,7 +308,9 @@ export class DiscordService {
       if (this._recentTransactions.includes(cacheKey)) {
         break;
       }
-      const buyerName = await this.etherService.getDomain(sale.winner_account.address);
+      const buyerName = await this.etherService.getDomain(
+        sale.winner_account.address,
+      );
       const sellerName = await this.etherService.getDomain(sale.seller.address);
 
       sales.push({
@@ -278,12 +323,16 @@ export class DiscordService {
         buyerName:
           sale.winner_account.user && sale.winner_account.user.username
             ? `(${sale.winner_account.user.username})`
-            : buyerName ? `(${buyerName})` : ``,
+            : buyerName
+            ? `(${buyerName})`
+            : ``,
         sellerAddr: sale.seller.address,
         sellerName:
           sale.seller.user && sale.seller.user.username
             ? `(${sale.seller.user.username})`
-            : sellerName ? `(${sellerName})` : ``,
+            : sellerName
+            ? `(${sellerName})`
+            : ``,
         txHash: sale.transaction.transaction_hash,
         cacheKey: cacheKey,
         permalink: sale.asset.permalink,
@@ -302,7 +351,7 @@ export class DiscordService {
     lrSales: any[],
     c: CollectionConfig,
   ): Promise<Sale[]> {
-    const ethPrice = await this.getPrice('ethereum', 'usd')
+    const ethPrice = await this.getPrice('ethereum', 'usd');
     const sales: Array<Sale> = [];
     for (const sale of lrSales) {
       const price = sale.order.price / 10 ** 18;
@@ -313,9 +362,9 @@ export class DiscordService {
       }
       const time = Date.now() - Date.parse(sale.createdAt);
       const timeSec = time / 1000;
-      const buyerName = await this.etherService.getDomain(sale.to);
-      const sellerName = await this.etherService.getDomain(sale.from);
       if (timeSec < this.configService.bot.salesLookbackSeconds) {
+        const buyerName = await this.etherService.getDomain(sale.to);
+        const sellerName = await this.etherService.getDomain(sale.from);
         sales.push({
           id: sale.token.tokenId,
           title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
@@ -341,12 +390,12 @@ export class DiscordService {
   /**
    * Process NFTX response into Sale[] object
    */
-   public async createSalesFromNFTX(
+  public async createSalesFromNFTX(
     redeems: any[],
     c: CollectionConfig,
   ): Promise<Sale[]> {
-    const price = await this.getPrice('wizard-vault-nftx', 'eth') * 1.05
-    const usdPrice = price * await this.getPrice('ethereum', 'usd')
+    const price = (await this.getPrice('wizard-vault-nftx', 'eth')) * 1.05;
+    const usdPrice = price * (await this.getPrice('ethereum', 'usd'));
 
     const sales: Array<Sale> = [];
     for (const sale of redeems) {
@@ -388,7 +437,9 @@ export class DiscordService {
     return [
       {
         name: 'Amount',
-        value: `${sale.tokenPrice.toFixed(2)} ${sale.tokenSymbol} ${sale.usdPrice}`,
+        value: `${sale.tokenPrice.toFixed(2)} ${sale.tokenSymbol} ${
+          sale.usdPrice
+        }`,
         inline: false,
       },
       {

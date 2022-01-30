@@ -21,17 +21,12 @@ export class EthereumService {
   }
 
   public async getCollectionIds(c: CollectionConfig): Promise<Array<number>> {
-
     const rawdata = await fs.readFileSync(c.tokenAbi);
     const abi = await JSON.parse(rawdata.toString());
 
     let ids: Array<number>;
 
-    const contract = new ethers.Contract(
-      c.tokenContract,
-      abi,
-      this.provider,
-    );
+    const contract = new ethers.Contract(c.tokenContract, abi, this.provider);
     const txns = await contract.queryFilter(
       contract.filters.Transfer(
         '0x0000000000000000000000000000000000000000',
@@ -53,21 +48,15 @@ export class EthereumService {
     const rawdata = await fs.readFileSync(`./${c.tokenAbi}`);
     const abi = await JSON.parse(rawdata.toString());
 
-    const contract = new ethers.Contract(
-      c.tokenContract,
-      abi,
-      this.provider,
-    );
-    const owner = await contract.ownerOf(
-      Number(id)
-    );
+    const contract = new ethers.Contract(c.tokenContract, abi, this.provider);
+    const owner = await contract.ownerOf(Number(id));
 
     return owner;
   }
 
   public async getDomain(address: string): Promise<string> {
     const domain = await this.provider.lookupAddress(utils.getAddress(address));
-    this._logger.log(`${address} resolves to ${domain}`);
+    this._logger.debug(`${address} resolves to ${domain}`);
     return domain != null ? domain : ``;
   }
 }
