@@ -191,11 +191,17 @@ export class DiscordService {
           }]
         },
       );
-      const sales = await this.createSalesFromOS(response.data.asset_events);
-      this._logger.log(
-        `Found ${sales.length} sales ${collection.openSeaSlug}/OpenSea`,
-      );
-      await this.postSales(sales.reverse());
+      if (response.data.asset_events.length) {
+        const sales = await this.createSalesFromOS(response.data.asset_events);
+        this._logger.log(
+          `Found ${sales.length} sales ${collection.openSeaSlug}/OpenSea`,
+        );
+        await this.postSales(sales.reverse());
+      } else {
+        this._logger.log(
+          `No sales ${collection.openSeaSlug}/OpenSea`,
+        );
+      }
     } catch (err) {
       this._logger.error(`${err} (${collection.openSeaSlug}/OpenSea)`);
     }
@@ -225,14 +231,20 @@ export class DiscordService {
       if (response.error) {
         this._logger.debug(response.error);
       }
-      const sales = await this.createSalesFromLR(
-        response.data.events,
-        collection,
-      );
-      this._logger.log(
-        `Found ${sales.length} sales ${collection.openSeaSlug}/LooksRare`,
-      );
-      await this.postSales(sales.reverse());
+      if (response.data.events.length) {
+        const sales = await this.createSalesFromLR(
+          response.data.events,
+          collection,
+        );
+        this._logger.log(
+          `Found ${sales.length} sales ${collection.openSeaSlug}/LooksRare`,
+        );
+        await this.postSales(sales.reverse());
+      } else {
+        this._logger.log(
+          `No sales ${collection.openSeaSlug}/LooksRare`,
+        );
+      }
     } catch (error) {
       this._logger.error(error.networkError.result);
     }
@@ -285,14 +297,21 @@ export class DiscordService {
       if (response.error) {
         this._logger.debug(response.error);
       }
-      const sales = await this.createSalesFromNFTX(
-        response.data.redeems,
-        collection,
-      );
-      this._logger.log(
-        `Found ${sales.length} sales ${collection.openSeaSlug}/NFTx`,
-      );
-      await this.postSales(sales.reverse());
+      if (response.data.redeems.length) {
+        this._logger.log(response.data.redeems);
+        const sales = await this.createSalesFromNFTX(
+          response.data.redeems,
+          collection,
+        );
+        this._logger.log(
+          `Found ${sales.length} sales ${collection.openSeaSlug}/NFTx`,
+        );
+        await this.postSales(sales.reverse());
+      } else {
+        this._logger.log(
+          `No sales ${collection.openSeaSlug}/NFTx`,
+        );
+      }
     } catch (error) {
       this._logger.error(error);
     }
