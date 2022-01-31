@@ -156,14 +156,11 @@ export class DiscordService {
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
-      const promises = [
-        this.getOSSales(c),
-        this.getLRSales(c),
-        c.openSeaSlug === 'forgottenruneswizardscult'
-          ? this.getNFTXSales(c)
-          : null,
-      ];
-      await (Promise as any).allSettled(promises);
+      await this.getOSSales(c)
+      await this.getLRSales(c)
+      if (c.openSeaSlug === 'forgottenruneswizardscult') {
+        await this.getNFTXSales(c)
+      }
     }
   }
 
@@ -185,10 +182,10 @@ export class DiscordService {
         {
           method: 'get',
           headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'X-API-KEY': this.configService.bot.openSeaApiKey,
           },
-          timeout: 5000,
+          timeout: 10000,
           transformResponse: [function transformResponse(data) {
             return JSON.parse(data);
           }]
@@ -200,7 +197,7 @@ export class DiscordService {
       );
       await this.postSales(sales.reverse());
     } catch (err) {
-      this._logger.error(err);
+      this._logger.error(`${err} (${collection.openSeaSlug}/OpenSea)`);
     }
   }
 
