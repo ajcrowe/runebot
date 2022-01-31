@@ -148,10 +148,10 @@ export class DiscordService {
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
-      this.getOSSales(c);
-      this.getLRSales(c);
+      await  this.getOSSales(c);
+      await this.getLRSales(c);
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
-        this.getNFTXSales(c);
+        await this.getNFTXSales(c);
       }
     }
   }
