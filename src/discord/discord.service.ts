@@ -13,7 +13,8 @@ import {
   LR_GET_SALES,
 } from 'src/types';
 import { DataStoreService } from '../datastore';
-import fetch from 'node-fetch';
+//import fetch from 'node-fetch';
+import axios, { AxiosResponse } from 'axios';
 import 'cross-fetch/polyfill';
 import {
   ApolloClient,
@@ -108,17 +109,24 @@ export class DiscordService {
    * Get Currency Price
    */
   public async getPrice(token: string, currency: string): Promise<number> {
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=${currency}`;
-    const options = {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    };
     try {
-      const response = await fetch(url, options);
-      const json = await response.json();
-      return json[token][currency];
+      const response: AxiosResponse = await axios.get(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=${currency}`,
+        {
+          method: 'get',
+          headers: {
+            Accept: 'application/json',
+          },
+          timeout: 5000,
+          transformResponse: [function transformResponse(data) {
+            return JSON.parse(data);
+          }]
+        },
+      );
+      this._logger.debug(
+        `Fetched price ${token}/${currency}: ${response.data[token][currency]}`,
+      );
+      return response.data[token][currency];
     } catch (err) {
       this._logger.error(err);
     }
@@ -148,11 +156,14 @@ export class DiscordService {
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
-      await  this.getOSSales(c);
-      await this.getLRSales(c);
-      if (c.openSeaSlug === 'forgottenruneswizardscult') {
-        await this.getNFTXSales(c);
-      }
+      const promises = [
+        this.getOSSales(c),
+        this.getLRSales(c),
+        c.openSeaSlug === 'forgottenruneswizardscult'
+          ? this.getNFTXSales(c)
+          : null,
+      ];
+      await (Promise as any).allSettled(promises);
     }
   }
 
@@ -162,24 +173,28 @@ export class DiscordService {
   public async getOSSales(collection: CollectionConfig): Promise<void> {
     try {
       // wait random time to avoid spamming OS
-      await this.sleep(Math.floor(Math.random() * 60 * 1000));
+      await this.sleep(Math.floor(Math.random() * 5000));
       // look back window for query
       const timestamp = new Date(
         Date.now() - Number(this.configService.bot.salesLookbackSeconds) * 1000,
       ).toISOString();
 
-      const url = `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp}`;
-      const options = {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'X-API-KEY': this.configService.bot.openSeaApiKey,
-        },
-      };
       this._logger.log(`Checking for sales ${collection.openSeaSlug}/OpenSea`);
-      const response = await fetch(url, options);
-      const json = await response.json();
-      const sales = await this.createSalesFromOS(json.asset_events);
+      const response: AxiosResponse = await axios.get(
+        `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp}`,
+        {
+          method: 'get',
+          headers: {
+            Accept: 'application/json',
+            'X-API-KEY': this.configService.bot.openSeaApiKey,
+          },
+          timeout: 5000,
+          transformResponse: [function transformResponse(data) {
+            return JSON.parse(data);
+          }]
+        },
+      );
+      const sales = await this.createSalesFromOS(response.data.asset_events);
       this._logger.log(
         `Found ${sales.length} sales ${collection.openSeaSlug}/OpenSea`,
       );
