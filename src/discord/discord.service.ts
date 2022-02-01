@@ -190,6 +190,7 @@ export class DiscordService {
           timeout: 10000,
         },
       );
+      this._logger.debug(`Response size: ${response.data.asset_events.length}`)
       if (response.data.asset_events.length) {
         const sales = await this.createSalesFromOS(response.data.asset_events);
         this._logger.log(
@@ -322,9 +323,11 @@ export class DiscordService {
       if (this._recentTransactions.includes(cacheKey)) {
         break;
       }
+      this._logger.debug(`Fetching ENS buyer name`);
       const buyerName = await this.etherService.getDomain(
         sale.winner_account.address,
       );
+      this._logger.debug(`Fetching ENS seller name`);
       const sellerName = await this.etherService.getDomain(sale.seller.address);
 
       sales.push({
