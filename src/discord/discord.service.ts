@@ -85,7 +85,7 @@ export class DiscordService {
   public async postSale(embed: MessageEmbed): Promise<void> {
     for (const channel of this._salesChannels) {
       try {
-        channel.send(embed);
+        await channel.send(embed);
       } catch (err) {
         this._logger.error(err);
       }
@@ -118,9 +118,11 @@ export class DiscordService {
             Accept: 'application/json',
           },
           timeout: 5000,
-          transformResponse: [function transformResponse(data) {
-            return JSON.parse(data);
-          }]
+          transformResponse: [
+            function transformResponse(data) {
+              return JSON.parse(data);
+            },
+          ],
         },
       );
       this._logger.debug(
@@ -156,10 +158,10 @@ export class DiscordService {
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
-      await this.getOSSales(c)
-      await this.getLRSales(c)
+      await this.getOSSales(c);
+      await this.getLRSales(c);
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
-        await this.getNFTXSales(c)
+        await this.getNFTXSales(c);
       }
     }
   }
@@ -182,13 +184,10 @@ export class DiscordService {
         {
           method: 'get',
           headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'X-API-KEY': this.configService.bot.openSeaApiKey,
           },
           timeout: 10000,
-          transformResponse: [function transformResponse(data) {
-            return JSON.parse(data);
-          }]
         },
       );
       if (response.data.asset_events.length) {
@@ -198,9 +197,7 @@ export class DiscordService {
         );
         await this.postSales(sales.reverse());
       } else {
-        this._logger.log(
-          `No sales ${collection.openSeaSlug}/OpenSea`,
-        );
+        this._logger.log(`No sales ${collection.openSeaSlug}/OpenSea`);
       }
     } catch (err) {
       this._logger.error(`${err} (${collection.openSeaSlug}/OpenSea)`);
@@ -241,9 +238,7 @@ export class DiscordService {
         );
         await this.postSales(sales.reverse());
       } else {
-        this._logger.log(
-          `No sales ${collection.openSeaSlug}/LooksRare`,
-        );
+        this._logger.log(`No sales ${collection.openSeaSlug}/LooksRare`);
       }
     } catch (error) {
       this._logger.error(error.networkError.result);
@@ -308,9 +303,7 @@ export class DiscordService {
         );
         await this.postSales(sales.reverse());
       } else {
-        this._logger.log(
-          `No sales ${collection.openSeaSlug}/NFTx`,
-        );
+        this._logger.log(`No sales ${collection.openSeaSlug}/NFTx`);
       }
     } catch (error) {
       this._logger.error(error);
