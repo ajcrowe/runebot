@@ -6,10 +6,15 @@ import { gql } from '@apollo/client/core';
 export const LR_FRAGMENTS = gql`
   fragment EventFragment on Event {
     id
-    from
-    to
+    type
     hash
     createdAt
+    to {
+      ...UserEventFragment
+    }
+    from {
+      ...UserEventFragment
+    }
     token {
       tokenId
       image
@@ -33,6 +38,14 @@ export const LR_FRAGMENTS = gql`
       strategy
       status
       params
+    }
+  }
+  fragment UserEventFragment on User {
+    address
+    name
+    isVerified
+    avatar {
+      image
     }
   }
 `;

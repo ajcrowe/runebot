@@ -190,7 +190,7 @@ export class DiscordService {
           timeout: 10000,
         },
       );
-      this._logger.debug(`Response size: ${response.data.asset_events.length}`)
+      this._logger.debug(`Response size: ${response.data.asset_events.length}`);
       if (response.data.asset_events.length) {
         const sales = await this.createSalesFromOS(response.data.asset_events);
         this._logger.log(
@@ -380,18 +380,26 @@ export class DiscordService {
       const time = Date.now() - Date.parse(sale.createdAt);
       const timeSec = time / 1000;
       if (timeSec < this.configService.bot.salesLookbackSeconds) {
-        const buyerName = await this.etherService.getDomain(sale.to);
-        const sellerName = await this.etherService.getDomain(sale.from);
+        const buyerName = await this.etherService.getDomain(sale.to.address);
+        const sellerName = await this.etherService.getDomain(sale.from.address);
         sales.push({
           id: sale.token.tokenId,
           title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
           tokenSymbol: 'WETH',
           tokenPrice: price,
           usdPrice: `(${(price * ethPrice).toFixed(2)} USD)`,
-          buyerAddr: sale.to,
-          buyerName: buyerName ? `(${buyerName})` : ``,
-          sellerAddr: sale.from,
-          sellerName: sellerName ? `(${sellerName})` : ``,
+          buyerAddr: sale.to.address,
+          buyerName: sale.to.name
+            ? `(${sale.to.name})`
+            : buyerName
+            ? `(${buyerName})`
+            : ``,
+          sellerAddr: sale.from.address,
+          sellerName: sale.from.name
+            ? `(${sale.from.name})`
+            : sellerName
+            ? `(${sellerName})`
+            : ``,
           txHash: sale.hash,
           cacheKey: cacheKey,
           permalink: `https://looksrare.org/collections/${sale.collection.address}/${sale.token.tokenId}`,

@@ -17,7 +17,6 @@ export class EthereumService {
   constructor(protected readonly configService: AppConfigService) {
     const { url, network } = this.configService.ethereum;
     this.provider = new JsonRpcProvider(url, network);
-
   }
 
   public async getCollectionIds(c: CollectionConfig): Promise<Array<number>> {
