@@ -315,51 +315,59 @@ export class DiscordService {
   public async createSalesFromOS(osSales: any[]): Promise<Sale[]> {
     const sales: Array<Sale> = [];
     for (const sale of osSales) {
-      const price = sale.total_price / 10 ** sale.payment_token.decimals;
-      const cacheKey = `${sale.transaction.transaction_hash}:${sale.asset.token_id}`;
-      // check if sale already in broadcast
-      if (this._recentTransactions.includes(cacheKey)) {
-        break;
-      }
-      const time = Date.now() - Date.parse(sale.created_date);
-      const timeSec = time / 1000;
-      if (timeSec < this.configService.bot.salesLookbackSeconds) {
+        const cacheKey = sale.transaction.transaction_hash;
+        // check if sale already in broadcast
+        if (this._recentTransactions.includes(cacheKey)) {
+          break;
+        }
+        const time = Date.now() - Date.parse(sale.created_date);
+        const timeSec = time / 1000;
+        if (timeSec < this.configService.bot.salesLookbackSeconds) {
+          if (sale.asset_bundle) {
+            this._logger.debug(sale);
+          } else {
+            this._logger.debug(`Fetching ENS buyer name`);
+            const buyerName = await this.etherService.getDomain(
+              sale.winner_account.address,
+            );
+            this._logger.debug(`Fetching ENS seller name`);
+            const sellerName = await this.etherService.getDomain(
+              sale.seller.address,
+            );
+            const price = sale.total_price / 10 ** sale.payment_token.decimals;
 
-        this._logger.debug(`Fetching ENS buyer name`);
-        const buyerName = await this.etherService.getDomain(
-          sale.winner_account.address,
-        );
-        this._logger.debug(`Fetching ENS seller name`);
-        const sellerName = await this.etherService.getDomain(sale.seller.address);
-
-        sales.push({
-          id: sale.asset.token_id,
-          title: `New Sale: ${sale.asset.name} (#${sale.asset.token_id})`,
-          tokenSymbol: sale.payment_token.symbol,
-          tokenPrice: price,
-          usdPrice: `($${(price * sale.payment_token.usd_price).toFixed(2)} USD)`,
-          buyerAddr: sale.winner_account.address,
-          buyerName:
-            sale.winner_account.user && sale.winner_account.user.username
-              ? `(${sale.winner_account.user.username})`
-              : buyerName
-              ? `(${buyerName})`
-              : ``,
-          sellerAddr: sale.seller.address,
-          sellerName:
-            sale.seller.user && sale.seller.user.username
-              ? `(${sale.seller.user.username})`
-              : sellerName
-              ? `(${sellerName})`
-              : ``,
-          txHash: sale.transaction.transaction_hash,
-          cacheKey: cacheKey,
-          permalink: sale.asset.permalink,
-          thumbnail: sale.asset.image_preview_url,
-          backgroundColor: sale.asset.background_color || '000000',
-          market: 'OpenSea',
-        });
-      }
+            sales.push({
+              id: sale.asset.token_id,
+              title: `New Sale: ${sale.asset.name} (#${sale.asset.token_id})`,
+              tokenSymbol: sale.payment_token.symbol,
+              tokenPrice: price,
+              usdPrice: `($${(price * sale.payment_token.usd_price).toFixed(
+                2,
+              )} USD)`,
+              buyerAddr: sale.winner_account.address,
+              buyerName:
+                sale.winner_account.user && sale.winner_account.user.username
+                  ? `(${sale.winner_account.user.username})`
+                  : buyerName
+                  ? `(${buyerName})`
+                  : ``,
+              sellerAddr: sale.seller.address,
+              sellerName:
+                sale.seller.user && sale.seller.user.username
+                  ? `(${sale.seller.user.username})`
+                  : sellerName
+                  ? `(${sellerName})`
+                  : ``,
+              txHash: sale.transaction.transaction_hash,
+              cacheKey: cacheKey,
+              permalink: sale.asset.permalink,
+              thumbnail: sale.asset.image_preview_url,
+              backgroundColor: sale.asset.background_color || '000000',
+              market: 'OpenSea',
+            });
+          }
+        }
+    
     }
     return sales;
   }
