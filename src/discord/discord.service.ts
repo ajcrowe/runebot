@@ -174,13 +174,11 @@ export class DiscordService {
       // wait random time to avoid spamming OS
       await this.sleep(Math.floor(Math.random() * 5000));
       // look back window for query
-      const timestamp = new Date(
-        Date.now() - Number(this.configService.bot.salesLookbackSeconds) * 1000,
-      ).toISOString();
+      //const timestamp = Math.round(+new Date()/1000) - Number(this.configService.bot.salesLookbackSeconds);
 
       this._logger.log(`Checking for sales ${collection.openSeaSlug}/OpenSea`);
       const response: AxiosResponse = await axios.get(
-        `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false&occurred_after=${timestamp}`,
+        `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false`,
         {
           method: 'get',
           headers: {
@@ -323,40 +321,45 @@ export class DiscordService {
       if (this._recentTransactions.includes(cacheKey)) {
         break;
       }
-      this._logger.debug(`Fetching ENS buyer name`);
-      const buyerName = await this.etherService.getDomain(
-        sale.winner_account.address,
-      );
-      this._logger.debug(`Fetching ENS seller name`);
-      const sellerName = await this.etherService.getDomain(sale.seller.address);
+      const time = Date.now() - Date.parse(sale.created_date);
+      const timeSec = time / 1000;
+      if (timeSec < this.configService.bot.salesLookbackSeconds) {
 
-      sales.push({
-        id: sale.asset.token_id,
-        title: `New Sale: ${sale.asset.name} (#${sale.asset.token_id})`,
-        tokenSymbol: sale.payment_token.symbol,
-        tokenPrice: price,
-        usdPrice: `($${(price * sale.payment_token.usd_price).toFixed(2)} USD)`,
-        buyerAddr: sale.winner_account.address,
-        buyerName:
-          sale.winner_account.user && sale.winner_account.user.username
-            ? `(${sale.winner_account.user.username})`
-            : buyerName
-            ? `(${buyerName})`
-            : ``,
-        sellerAddr: sale.seller.address,
-        sellerName:
-          sale.seller.user && sale.seller.user.username
-            ? `(${sale.seller.user.username})`
-            : sellerName
-            ? `(${sellerName})`
-            : ``,
-        txHash: sale.transaction.transaction_hash,
-        cacheKey: cacheKey,
-        permalink: sale.asset.permalink,
-        thumbnail: sale.asset.image_preview_url,
-        backgroundColor: sale.asset.background_color || '000000',
-        market: 'OpenSea',
-      });
+        this._logger.debug(`Fetching ENS buyer name`);
+        const buyerName = await this.etherService.getDomain(
+          sale.winner_account.address,
+        );
+        this._logger.debug(`Fetching ENS seller name`);
+        const sellerName = await this.etherService.getDomain(sale.seller.address);
+
+        sales.push({
+          id: sale.asset.token_id,
+          title: `New Sale: ${sale.asset.name} (#${sale.asset.token_id})`,
+          tokenSymbol: sale.payment_token.symbol,
+          tokenPrice: price,
+          usdPrice: `($${(price * sale.payment_token.usd_price).toFixed(2)} USD)`,
+          buyerAddr: sale.winner_account.address,
+          buyerName:
+            sale.winner_account.user && sale.winner_account.user.username
+              ? `(${sale.winner_account.user.username})`
+              : buyerName
+              ? `(${buyerName})`
+              : ``,
+          sellerAddr: sale.seller.address,
+          sellerName:
+            sale.seller.user && sale.seller.user.username
+              ? `(${sale.seller.user.username})`
+              : sellerName
+              ? `(${sellerName})`
+              : ``,
+          txHash: sale.transaction.transaction_hash,
+          cacheKey: cacheKey,
+          permalink: sale.asset.permalink,
+          thumbnail: sale.asset.image_preview_url,
+          backgroundColor: sale.asset.background_color || '000000',
+          market: 'OpenSea',
+        });
+      }
     }
     return sales;
   }
