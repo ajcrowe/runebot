@@ -180,7 +180,7 @@ export class DiscordService {
 
       this._logger.log(`Checking for sales ${collection.openSeaSlug}/OpenSea`);
       const response: AxiosResponse = await axios.get(
-        `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false&offset=0&limit=100&occurred_after=${timestamp}`,
+        `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false&occurred_after=${timestamp}`,
         {
           method: 'get',
           headers: {
