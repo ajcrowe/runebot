@@ -17,7 +17,10 @@ export const LR_FRAGMENTS = gql`
     }
     token {
       tokenId
-      image
+      image {
+        src
+        contentType
+      }
       name
     }
     collection {
@@ -25,7 +28,10 @@ export const LR_FRAGMENTS = gql`
       name
       description
       totalSupply
-      logo
+      logo {
+        src
+        contentType
+      }
       floorOrder {
         price
       }
@@ -45,7 +51,10 @@ export const LR_FRAGMENTS = gql`
     name
     isVerified
     avatar {
-      image
+      image {
+        src
+        contentType
+      }
     }
   }
 `;
