@@ -21,6 +21,8 @@ export interface BotConfig {
   openSeaApiKey: string;
   looksRareApi: string;
   nftxApi: string;
+  forgottenApi: string;
+  redisUri: string;
 }
 
 /**
@@ -42,6 +44,7 @@ export interface CollectionConfig {
   dataURI?: string;
   imageURI?: string;
   openSeaBaseURI?: string;
+  forgottenSlug?: string;
 }
 
 /**

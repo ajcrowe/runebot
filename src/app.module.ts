@@ -6,6 +6,7 @@ import { DiscordModule } from './discord/discord.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppConfigModule } from './config';
 import { EthereumModule } from './ethereum';
+import { CacheModule } from './cache';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EthereumModule } from './ethereum';
     DiscordModule,
     EthereumModule,
     ScheduleModule.forRoot(),
+    CacheModule,
   ],
   providers: [AppService],
 })

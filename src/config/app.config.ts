@@ -5,11 +5,15 @@ export default (): AppConfig => ({
     salesCheckCron: process.env.SALES_CHECK_CRON || '*/1 * * * *',
     openSeaApiKey: process.env.OPENSEA_API_KEY,
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
+    redisUri: process.env.REDIS_URI || 'redis://localhost:6379',
     looksRareApi:
       process.env.LOOKS_RARE_API || 'https://api.looksrare.org/graphql',
     nftxApi:
       process.env.NFTX_API ||
       'https://query.graph.nftx.xyz/subgraphs/id/QmNs1SffouVn8iCsRK262j7JqsRMhZjR2EVacZwNH3CCbr',
+    forgottenApi:
+      process.env.FORGOTTEN_API ||
+      'https://mainnet-api-v4.reservoir.tools/sales',
   },
   wizard: {
     tokenContract:
@@ -20,6 +24,8 @@ export default (): AppConfig => ({
       process.env.WIZARD_NFTX_VAULT ||
       '0x87931e7ad81914e7898d07c68f145fc0a553d8fb',
     openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',
+    forgottenSlug:
+      process.env.WIZARD_FORGOTTEN_SLUG || 'forgottenruneswizardscult',
     dataURI:
       process.env.WIZARD_DATA_URI ||
       'https://cloudflare-ipfs.com/ipfs/QmfUgAKioFE8taS41a2XEjYFrkbfpVyXYRt7c6iqTZVy9G',
@@ -35,6 +41,7 @@ export default (): AppConfig => ({
       process.env.SOUL_CONTRACT || '0x251b5f14a825c537ff788604ea1b58e49b70726f',
     tokenAbi: 'abis/souls.json',
     openSeaSlug: process.env.SOUL_OPENSEA_SLUG || 'forgottensouls',
+    forgottenSlug: process.env.SOUL_FORGOTTEN_SLUG || 'forgottensouls',
     dataURI:
       process.env.SOUL_DATA_URI ||
       'https://portal.forgottenrunes.com/api/souls/data',
@@ -50,6 +57,7 @@ export default (): AppConfig => ({
       process.env.PONY_CONTRACT || '0xf55b615b479482440135ebf1b907fd4c37ed9420',
     tokenAbi: 'abis/ponies.json',
     openSeaSlug: process.env.PONY_OPENSEA_SLUG || 'forgottenrunesponies',
+    forgottenSlug: process.env.PONY_FORGOTTEN_SLUG || 'forgottenrunesponies',
     dataURI:
       process.env.PONY_DATA_URI ||
       'https://portal.forgottenrunes.com/api/shadowfax/data',

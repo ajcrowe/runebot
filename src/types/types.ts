@@ -189,12 +189,21 @@ export interface Sale {
   thumbnail: string;
   backgroundColor: string;
   market: string;
+  marketIcon: string;
+}
+
+export enum Market {
+  OPENSEA = 'OpenSea',
+  LOOKSRARE = 'Looks Rare',
+  NFTX = 'NFTx',
+  FORGOTTEN = 'Forgotten Market',
 }
 
 export enum MarketIcons {
-  OpenSea = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/os.png',
-  LooksRare = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/lr.png',
+  OPENSEA = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/os.png',
+  LOOKSRARE = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/lr.png',
   NFTX = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/nft-x.png',
+  FORGOTTEN = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/forgotten.png',
 }
 
 /**
