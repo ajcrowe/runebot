@@ -116,7 +116,7 @@ export class OpenSeaMarketService extends MarketService {
             thumbnail: sale.asset.image_preview_url,
             backgroundColor: sale.asset.background_color || '000000',
             market: Market.OPENSEA,
-            marketIcon: MarketIcons.OPENSEA
+            marketIcon: MarketIcons.OPENSEA,
           });
         }
       }

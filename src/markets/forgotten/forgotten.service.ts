@@ -1,4 +1,4 @@
-import { CollectionConfig, Sale,  Market, MarketIcons } from 'src/types';
+import { CollectionConfig, Sale, Market, MarketIcons } from 'src/types';
 import { MarketService } from '../market.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../../config';
@@ -69,7 +69,7 @@ export class ForgottenMarketService extends MarketService {
     const sales: Array<Sale> = [];
     for (const sale of forgottenSales) {
       const cacheKey = `${sale.txHash}:${sale.token.tokenId}`;
-      const time = (Date.now() / 1000) - sale.timestamp;
+      const time = Date.now() / 1000 - sale.timestamp;
       if (time < this.configService.bot.salesLookbackSeconds) {
         // check if sale already in broadcast
         if (await this.cacheService.isCached(cacheKey)) {
@@ -93,7 +93,7 @@ export class ForgottenMarketService extends MarketService {
           thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
           backgroundColor: '000000',
           market: Market.FORGOTTEN,
-          marketIcon: MarketIcons.FORGOTTEN
+          marketIcon: MarketIcons.FORGOTTEN,
         });
       }
     }

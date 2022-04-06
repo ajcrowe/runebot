@@ -1,4 +1,10 @@
-import { CollectionConfig, Sale, LR_GET_SALES, Market, MarketIcons } from 'src/types';
+import {
+  CollectionConfig,
+  Sale,
+  LR_GET_SALES,
+  Market,
+  MarketIcons,
+} from 'src/types';
 import { MarketService } from '../market.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../../config';
@@ -116,7 +122,7 @@ export class LooksRareMarketService extends MarketService {
           thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
           backgroundColor: '000000',
           market: Market.LOOKSRARE,
-          marketIcon: MarketIcons.LOOKSRARE
+          marketIcon: MarketIcons.LOOKSRARE,
         });
       }
     }
