@@ -72,7 +72,6 @@ export class LooksRareMarketService extends MarketService {
       this._logger.log(
         `Checking for sales ${collection.openSeaSlug}/LooksRare`,
       );
-      console.log(queryVariables);
       const response = await this._lrClient.query({
         query: LR_GET_SALES,
         variables: queryVariables,
