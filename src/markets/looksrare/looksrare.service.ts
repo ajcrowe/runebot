@@ -34,6 +34,18 @@ export class LooksRareMarketService extends MarketService {
       uri: this.configService.bot.looksRareApi,
       cache: new InMemoryCache(),
       defaultOptions: this.apolloDefaultOptions,
+      headers: {
+        origin: 'https://looksrare.org',
+        referer: 'https://looksrare.org',
+        'content-type': 'application/json',
+        'sec-ch-ua': 'Not A;Brand";v="99", "Chromium";v="100", "Google Chrome";v="100',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': "Linux",
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36'
+      }
     });
   }
 
@@ -48,16 +60,17 @@ export class LooksRareMarketService extends MarketService {
     const queryVariables = {
       filter: {
         collection: collection.tokenContract,
-        type: ['SALE'],
+        type: ['SALE']
       },
       pagination: {
-        first: 20,
-      },
+        first: 20
+      }
     };
     try {
       this._logger.log(
         `Checking for sales ${collection.openSeaSlug}/LooksRare`,
       );
+      console.log(queryVariables);
       const response = await this._lrClient.query({
         query: LR_GET_SALES,
         variables: queryVariables,
@@ -76,7 +89,8 @@ export class LooksRareMarketService extends MarketService {
         return [];
       }
     } catch (error) {
-      this._logger.error(error.networkError.result);
+      this._logger.error(error);
+      return [];
     }
   }
 
