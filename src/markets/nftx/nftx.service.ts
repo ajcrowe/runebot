@@ -84,7 +84,6 @@ export class NFTXMarketService extends MarketService {
         this._logger.debug(response.error);
       }
       if (response.data.redeems.length) {
-        this._logger.log(response.data.redeems);
         const sales = await this.createSales(response.data.redeems, collection);
         this._logger.log(
           `Found ${sales.length} sales ${collection.openSeaSlug}/NFTx`,

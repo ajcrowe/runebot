@@ -10,7 +10,7 @@ export default (): AppConfig => ({
       process.env.LOOKS_RARE_API || 'https://api.looksrare.org/graphql',
     nftxApi:
       process.env.NFTX_API ||
-      'https://query.graph.nftx.xyz/subgraphs/id/QmNs1SffouVn8iCsRK262j7JqsRMhZjR2EVacZwNH3CCbr',
+      'https://gateway.thegraph.com/api/690cf8d6987a151008c2536454bd3d7a/subgraphs/id/4gZf3atMXjYDh4g48Zr83NFX3rkvZED86VqMNhgEXgLc',
     forgottenApi:
       process.env.FORGOTTEN_API ||
       'https://mainnet-api-v4.reservoir.tools/sales',

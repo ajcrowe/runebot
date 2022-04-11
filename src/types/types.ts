@@ -195,7 +195,7 @@ export interface Sale {
 export enum Market {
   OPENSEA = 'OpenSea',
   LOOKSRARE = 'Looks Rare',
-  NFTX = 'NFTx',
+  NFTX = 'NFTX',
   FORGOTTEN = 'Forgotten Market',
 }
 
