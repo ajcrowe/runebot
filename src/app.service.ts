@@ -29,6 +29,7 @@ export class AppService {
           this.configService.soul,
           this.configService.pony,
           this.configService.flame,
+          this.configService.lock,
         ]);
       },
     );

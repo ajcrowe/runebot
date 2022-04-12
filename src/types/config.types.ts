@@ -8,6 +8,7 @@ export interface AppConfig {
   soul: CollectionConfig;
   pony: CollectionConfig;
   flame: CollectionConfig;
+  lock: CollectionConfig;
   discord: DiscordConfig;
   twitter: TwitterConfig;
 }

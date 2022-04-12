@@ -8,8 +8,10 @@ import {
   SoulTrait,
   SoulAttrName,
   Pony,
-  PonyTrait,
+  Lock,
+  Trait,
   PonyAttrName,
+  LockAttrName,
 } from 'src/types';
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';
@@ -253,7 +255,7 @@ export class DataStoreService {
   }
 
   /*
-   * get soul
+   * get Pony
    */
   public async getPony(id: string): Promise<Pony> {
     try {
@@ -265,7 +267,7 @@ export class DataStoreService {
       const response = await fetch(url, options);
       const json = await response.json();
 
-      const attrs: Array<PonyTrait> = json.attributes;
+      const attrs: Array<Trait> = json.attributes;
       let generation: string,
         background: string,
         pony: string,
@@ -319,6 +321,49 @@ export class DataStoreService {
         name: json.name,
         traits: traits,
         backgroundColor: '000000',
+      };
+    } catch (err) {
+      this._logger.error(err);
+    }
+  }
+  /*
+   * get Pony
+   */
+  public async getLock(id: string): Promise<Lock> {
+    try {
+      const url = `${this.configService.lock.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
+      const json = await response.json();
+
+      const attrs: Array<Trait> = json.attributes;
+      let spell: string, key: string, material: string;
+
+      const traits = [];
+      for (const attr of attrs) {
+        switch (attr.trait_type) {
+          case LockAttrName['Material']:
+            material = attr.value;
+            break;
+          case LockAttrName['Key']:
+            key = attr.value;
+            break;
+          case LockAttrName['Spell']:
+            spell = attr.value;
+            break;
+        }
+      }
+      traits.push({ name: 'Material', value: material, inline: false });
+      traits.push({ name: 'Key Used', value: key, inline: false });
+      traits.push({ name: 'Spell Used', value: spell, inline: true });
+      return {
+        serial: id,
+        name: json.name,
+        traits: traits,
+        backgroundColor: json.background,
       };
     } catch (err) {
       this._logger.error(err);

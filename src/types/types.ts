@@ -1,3 +1,5 @@
+import { SubscriptionArgs } from 'graphql';
+
 /**
  * Wizard
  */
@@ -81,14 +83,6 @@ export interface Pony {
 }
 
 /**
- * Pony Traits
- */
-export interface PonyTrait {
-  trait_type: string;
-  value: string;
-}
-
-/**
  * Pony Attribute names
  */
 export enum PonyAttrName {
@@ -99,6 +93,33 @@ export enum PonyAttrName {
   Head = 'head',
   Rune = 'rune',
   Mouth = 'mouth',
+}
+
+/**
+ * Lock
+ */
+export interface Lock {
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
+}
+
+/**
+ * Lock Attribute names
+ */
+export enum LockAttrName {
+  Spell = 'Spell used',
+  Key = 'Key used',
+  Material = 'Material',
+}
+
+/**
+ * Traits
+ */
+export interface Trait {
+  trait_type: string;
+  value: string;
 }
 
 export interface RarityConfig {

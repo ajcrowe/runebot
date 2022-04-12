@@ -9,7 +9,7 @@ import {
   Pony,
   Sale,
   CollectionConfig,
-  MarketIcons,
+  Lock,
 } from 'src/types';
 import {
   OpenSeaMarketService,
@@ -67,7 +67,10 @@ export class DiscordService {
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
         await this.postSales(await this.nftxMarket.getSales(c));
       }
-      if (c.openSeaSlug != 'infinityveil') {
+      if (
+        c.openSeaSlug != 'infinityveil' ||
+        'forgottenrunesgatetotheseventhrealm'
+      ) {
         await this.postSales(await this.forgottenMarket.getSales(c));
       }
     }
@@ -179,7 +182,22 @@ export class DiscordService {
           break;
         case 'affinity':
           break;
-        case 'name':
+        case 'lock':
+          const lock: Lock = await this.dataStoreService.getLock(id);
+          embed = new MessageEmbed()
+            .setColor(lock.backgroundColor)
+            .setAuthor(
+              `${lock.name} (#${lock.serial})`,
+              'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
+              `${this.configService.lock.openSeaBaseURI}/${lock.serial}`,
+            )
+            .setURL(
+              `https://opensea.io/assets/${this.configService.lock.tokenContract}/${lock.serial}`,
+            )
+            .setThumbnail(
+              `${this.configService.lock.imageURI}/${lock.serial}.png`,
+            )
+            .addFields(lock.traits);
           break;
         default:
           if (await this.dataStoreService.checkSoul(id)) {

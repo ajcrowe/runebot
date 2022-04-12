@@ -6,81 +6,53 @@ export default (): AppConfig => ({
     openSeaApiKey: process.env.OPENSEA_API_KEY,
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
     redisUri: process.env.REDIS_URI || 'redis://localhost:6379',
-    looksRareApi:
-      process.env.LOOKS_RARE_API || 'https://api.looksrare.org/graphql',
-    nftxApi:
-      process.env.NFTX_API ||
-      'https://gateway.thegraph.com/api/690cf8d6987a151008c2536454bd3d7a/subgraphs/id/4gZf3atMXjYDh4g48Zr83NFX3rkvZED86VqMNhgEXgLc',
-    forgottenApi:
-      process.env.FORGOTTEN_API ||
-      'https://mainnet-api-v4.reservoir.tools/sales',
+    looksRareApi: 'https://api.looksrare.org/graphql',
+    nftxApi: 'https://gateway.thegraph.com/api/690cf8d6987a151008c2536454bd3d7a/subgraphs/id/4gZf3atMXjYDh4g48Zr83NFX3rkvZED86VqMNhgEXgLc',
+    forgottenApi: 'https://mainnet-api-v4.reservoir.tools/sales',
   },
   wizard: {
-    tokenContract:
-      process.env.WIZARD_CONTRACT ||
-      '0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',
+    tokenContract: '0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',
     tokenAbi: 'abis/wizards.json',
-    nftxVaultContract:
-      process.env.WIZARD_NFTX_VAULT ||
-      '0x87931e7ad81914e7898d07c68f145fc0a553d8fb',
-    openSeaSlug: process.env.WIZARD_OPENSEA_SLUG || 'forgottenruneswizardscult',
-    forgottenSlug:
-      process.env.WIZARD_FORGOTTEN_SLUG || 'forgottenruneswizardscult',
-    dataURI:
-      process.env.WIZARD_DATA_URI ||
-      'https://cloudflare-ipfs.com/ipfs/QmfUgAKioFE8taS41a2XEjYFrkbfpVyXYRt7c6iqTZVy9G',
-    imageURI:
-      process.env.WIZARD_IMAGE_URI ||
-      'https://cloudflare-ipfs.com/ipfs/QmbtiPZfgUzHd79T1aPcL9yZnhGFmzwar7h4vmfV6rV8Kq',
-    openSeaBaseURI:
-      process.env.WIZARD_OPENSEA_BASE_URI ||
-      'https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',
+    nftxVaultContract: '0x87931e7ad81914e7898d07c68f145fc0a553d8fb',
+    openSeaSlug: 'forgottenruneswizardscult',
+    forgottenSlug: 'forgottenruneswizardscult',
+    dataURI: 'https://cloudflare-ipfs.com/ipfs/QmfUgAKioFE8taS41a2XEjYFrkbfpVyXYRt7c6iqTZVy9G',
+    imageURI: 'https://cloudflare-ipfs.com/ipfs/QmbtiPZfgUzHd79T1aPcL9yZnhGFmzwar7h4vmfV6rV8Kq',
+    openSeaBaseURI: 'https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',
   },
   soul: {
-    tokenContract:
-      process.env.SOUL_CONTRACT || '0x251b5f14a825c537ff788604ea1b58e49b70726f',
+    tokenContract: '0x251b5f14a825c537ff788604ea1b58e49b70726f',
     tokenAbi: 'abis/souls.json',
-    openSeaSlug: process.env.SOUL_OPENSEA_SLUG || 'forgottensouls',
-    forgottenSlug: process.env.SOUL_FORGOTTEN_SLUG || 'forgottensouls',
-    dataURI:
-      process.env.SOUL_DATA_URI ||
-      'https://portal.forgottenrunes.com/api/souls/data',
-    imageURI:
-      process.env.SOUL_IMAGE_URI ||
-      'https://portal.forgottenrunes.com/api/souls/img',
-    openSeaBaseURI:
-      process.env.SOUL_OPENSEA_BASE_URI ||
-      'https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f',
+    openSeaSlug: 'forgottensouls',
+    forgottenSlug: 'forgottensouls',
+    dataURI: 'https://portal.forgottenrunes.com/api/souls/data',
+    imageURI: 'https://portal.forgottenrunes.com/api/souls/img',
+    openSeaBaseURI: 'https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f',
   },
   pony: {
-    tokenContract:
-      process.env.PONY_CONTRACT || '0xf55b615b479482440135ebf1b907fd4c37ed9420',
+    tokenContract: '0xf55b615b479482440135ebf1b907fd4c37ed9420',
     tokenAbi: 'abis/ponies.json',
-    openSeaSlug: process.env.PONY_OPENSEA_SLUG || 'forgottenrunesponies',
-    forgottenSlug: process.env.PONY_FORGOTTEN_SLUG || 'forgottenrunesponies',
-    dataURI:
-      process.env.PONY_DATA_URI ||
-      'https://portal.forgottenrunes.com/api/shadowfax/data',
-    imageURI:
-      process.env.PONY_IMAGE_URI ||
-      'https://portal.forgottenrunes.com/api/shadowfax/img',
-    openSeaBaseURI:
-      process.env.PONY_OPENSEA_BASE_URI ||
-      'https://opensea.io/assets/0xf55b615b479482440135ebf1b907fd4c37ed9420',
+    openSeaSlug: 'forgottenrunesponies',
+    forgottenSlug: 'forgottenrunesponies',
+    dataURI: 'https://portal.forgottenrunes.com/api/shadowfax/data',
+    imageURI: 'https://portal.forgottenrunes.com/api/shadowfax/img',
+    openSeaBaseURI: 'https://opensea.io/assets/0xf55b615b479482440135ebf1b907fd4c37ed9420',
   },
   flame: {
-    tokenContract:
-      process.env.FLAME_CONTRACT ||
-      '0x31158181b4b91a423bfdc758fc3bf8735711f9c5',
+    tokenContract: '0x31158181b4b91a423bfdc758fc3bf8735711f9c5',
     tokenAbi: 'abis/flames.json',
-    openSeaSlug: process.env.FLAME_FLAME_OPENSEA_SLUG || 'infinityveil',
-    dataURI:
-      process.env.FLAME_DATA_URI ||
-      'https://cloudflare-ipfs.com/ipfs/QmebNYy9k7JFzofbYa6d7hr5AWYaPqtwqTjHe6gk2BBRm1',
-    imageURI: process.env.FLAME_IMAGE_URI || '',
-    openSeaBaseURI:
-      process.env.FLAME_OPENSEA_BASE_URI ||
-      'https://opensea.io/assets/0x31158181b4b91a423bfdc758fc3bf8735711f9c5',
+    openSeaSlug: 'infinityveil',
+    dataURI: 'https://cloudflare-ipfs.com/ipfs/QmebNYy9k7JFzofbYa6d7hr5AWYaPqtwqTjHe6gk2BBRm1',
+    imageURI: '',
+    openSeaBaseURI:'https://opensea.io/assets/0x31158181b4b91a423bfdc758fc3bf8735711f9c5',
+  },
+  lock: {
+    tokenContract: '0xda5cf3a42ebacd2d8fcb53830b1025e01d37832d',
+    tokenAbi: 'abis/lock.json',
+    openSeaSlug: 'forgottenrunesgatetotheseventhrealm',
+    dataURI: 'https://portal.forgottenrunes.com/api/locks/data',
+    imageURI: 'https://portal.forgottenrunes.com/api/locks/img',
+    openSeaBaseURI: 'https://opensea.io/assets/0xda5cf3a42ebacd2d8fcb53830b1025e01d37832d',
   },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,

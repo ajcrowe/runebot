@@ -49,6 +49,13 @@ export class AppConfigService {
   }
 
   /**
+   * Lock config
+   */
+  public get lock(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('lock');
+  }
+
+  /**
    * Discord config
    */
   public get discord(): DiscordConfig {
