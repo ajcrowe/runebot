@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DiscordService } from './discord.service';
 import { AppConfigModule } from '../config';
 import { DataStoreModule } from 'src/datastore';

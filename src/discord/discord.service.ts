@@ -4,12 +4,13 @@ import { EthereumService } from 'src/ethereum';
 import Discord, { TextChannel, MessageEmbed } from 'discord.js';
 import toRegexRange from 'to-regex-range';
 import {
+  CollectionConfig,
   Wizard,
   Soul,
   Pony,
   Sale,
-  CollectionConfig,
   Lock,
+  Beast,
 } from 'src/types';
 import {
   OpenSeaMarketService,
@@ -180,7 +181,22 @@ export class DiscordService {
             )
             .addFields(pony.traits);
           break;
-        case 'affinity':
+        case 'beast':
+          const beast: Beast = await this.dataStoreService.getBeast(id);
+          embed = new MessageEmbed()
+            .setColor(beast.backgroundColor)
+            .setAuthor(
+              `${beast.name} (#${beast.serial})`,
+              'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
+              `${this.configService.lock.openSeaBaseURI}/${beast.serial}`,
+            )
+            .setURL(
+              `https://opensea.io/assets/${this.configService.beast.tokenContract}/${beast.serial}`,
+            )
+            .setThumbnail(
+              `${this.configService.beast.imageURI}/${beast.serial}.png`,
+            )
+            .addFields(beast.traits);
           break;
         case 'lock':
           const lock: Lock = await this.dataStoreService.getLock(id);

@@ -9,6 +9,7 @@ export interface AppConfig {
   pony: CollectionConfig;
   flame: CollectionConfig;
   lock: CollectionConfig;
+  beast: CollectionConfig;
   discord: DiscordConfig;
   twitter: TwitterConfig;
 }

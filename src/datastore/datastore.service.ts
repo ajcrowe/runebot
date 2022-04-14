@@ -8,10 +8,11 @@ import {
   SoulTrait,
   SoulAttrName,
   Pony,
-  Lock,
-  Trait,
   PonyAttrName,
+  Lock,
   LockAttrName,
+  Beast,
+  Trait,
 } from 'src/types';
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';
@@ -326,8 +327,9 @@ export class DataStoreService {
       this._logger.error(err);
     }
   }
+
   /*
-   * get Pony
+   * get Lock
    */
   public async getLock(id: string): Promise<Lock> {
     try {
@@ -364,6 +366,36 @@ export class DataStoreService {
         name: json.name,
         traits: traits,
         backgroundColor: json.background,
+      };
+    } catch (err) {
+      this._logger.error(err);
+    }
+  }
+
+  /*
+   * get Beast
+   */
+  public async getBeast(id: string): Promise<Beast> {
+    try {
+      const url = `${this.configService.beast.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
+      const json = await response.json();
+
+      const attrs: Array<Trait> = json.attributes;
+      const traits = [];
+      for (const attr of attrs) {
+        traits.push({ name: attr.trait_type, value: attr.value, inline: true });
+      }
+      return {
+        serial: id,
+        name: json.name,
+        traits: traits,
+        backgroundColor: json.background,
+        description: json.description,
       };
     } catch (err) {
       this._logger.error(err);

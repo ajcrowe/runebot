@@ -30,6 +30,7 @@ export class AppService {
           this.configService.pony,
           this.configService.flame,
           this.configService.lock,
+          this.configService.beast,
         ]);
       },
     );

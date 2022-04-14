@@ -56,6 +56,13 @@ export class AppConfigService {
   }
 
   /**
+   * Beast config
+   */
+  public get beast(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('beast');
+  }
+
+  /**
    * Discord config
    */
   public get discord(): DiscordConfig {

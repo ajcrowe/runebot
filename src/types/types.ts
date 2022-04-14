@@ -1,5 +1,3 @@
-import { SubscriptionArgs } from 'graphql';
-
 /**
  * Wizard
  */
@@ -112,6 +110,27 @@ export enum LockAttrName {
   Spell = 'Spell used',
   Key = 'Key used',
   Material = 'Material',
+}
+
+/**
+ * Beast
+ */
+export interface Beast {
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
+  description: string;
+}
+
+/**
+ * Beast Attribute names
+ */
+export enum BeastAttrName {
+  Species = 'Species',
+  Wings = 'Wings',
+  Heads = 'Heads',
+  Tail = 'Tail',
 }
 
 /**
