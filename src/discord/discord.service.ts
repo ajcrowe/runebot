@@ -11,6 +11,8 @@ import {
   Sale,
   Lock,
   Beast,
+  Spawn,
+  Item,
 } from 'src/types';
 import {
   OpenSeaMarketService,
@@ -68,10 +70,7 @@ export class DiscordService {
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
         await this.postSales(await this.nftxMarket.getSales(c));
       }
-      if (
-        c.openSeaSlug != 'infinityveil' ||
-        'forgottenrunesgatetotheseventhrealm'
-      ) {
+      if (c.openSeaSlug != 'forgottenrunesbeastspawn') {
         await this.postSales(await this.forgottenMarket.getSales(c));
       }
     }
@@ -156,105 +155,56 @@ export class DiscordService {
       const args = commandBody.split(' ');
       const id = args[0].toLowerCase();
       if (!this._rangeRegex.test(id)) {
-        this._logger.log(`Wizard out of range`);
+        this._logger.log(`Item out of range`);
         return;
       }
 
       const collection = args[1];
-
       let embed: MessageEmbed;
+
       switch (collection) {
         case 'pony':
-          const pony: Pony = await this.dataStoreService.getPony(id);
-          embed = new MessageEmbed()
-            .setColor(pony.backgroundColor)
-            .setAuthor(
-              `${pony.name} (#${pony.serial})`,
-              'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
-              `${this.configService.pony.openSeaBaseURI}/${pony.serial}`,
-            )
-            .setURL(
-              `https://opensea.io/assets/${this.configService.pony.tokenContract}/${pony.serial}`,
-            )
-            .setThumbnail(
-              `${this.configService.pony.imageURI}/${pony.serial}.png`,
-            )
-            .addFields(pony.traits);
+          embed = await this.getEmbed(
+            await this.dataStoreService.getPony(id),
+            this.configService.pony,
+          );
           break;
         case 'beast':
-          const beast: Beast = await this.dataStoreService.getBeast(id);
-          embed = new MessageEmbed()
-            .setColor(beast.backgroundColor)
-            .setAuthor(
-              `${beast.name} (#${beast.serial})`,
-              'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
-              `${this.configService.lock.openSeaBaseURI}/${beast.serial}`,
-            )
-            .setURL(
-              `https://opensea.io/assets/${this.configService.beast.tokenContract}/${beast.serial}`,
-            )
-            .setThumbnail(
-              `${this.configService.beast.imageURI}/${beast.serial}.png`,
-            )
-            .addFields(beast.traits);
+          embed = await this.getEmbed(
+            await this.dataStoreService.getBeast(id),
+            this.configService.beast,
+          );
+          break;
+        case 'spawn':
+          embed = await this.getEmbed(
+            await this.dataStoreService.getSpawn(id),
+            this.configService.spawn,
+          );
           break;
         case 'lock':
-          const lock: Lock = await this.dataStoreService.getLock(id);
-          embed = new MessageEmbed()
-            .setColor(lock.backgroundColor)
-            .setAuthor(
-              `${lock.name} (#${lock.serial})`,
-              'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
-              `${this.configService.lock.openSeaBaseURI}/${lock.serial}`,
-            )
-            .setURL(
-              `https://opensea.io/assets/${this.configService.lock.tokenContract}/${lock.serial}`,
-            )
-            .setThumbnail(
-              `${this.configService.lock.imageURI}/${lock.serial}.png`,
-            )
-            .addFields(lock.traits);
+          embed = await this.getEmbed(
+            await this.dataStoreService.getLock(id),
+            this.configService.lock,
+          );
           break;
         default:
           if (await this.dataStoreService.checkSoul(id)) {
-            const soul: Soul = await this.dataStoreService.getSoul(id);
-            this._logger.log(`Fetched Soul: ${soul.name} (${id})`);
-            embed = new MessageEmbed()
-              .setColor(soul.backgroundColor)
-              .setAuthor(
-                `${soul.name} (#${soul.serial})`,
-                'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
-                `${this.configService.soul.openSeaBaseURI}/${soul.serial}`,
-              )
-              .setURL(
-                `https://opensea.io/assets/${this.configService.soul.tokenContract}/${soul.serial}`,
-              )
-              .setThumbnail(
-                `${this.configService.soul.imageURI}/${soul.serial}.png`,
-              )
-              .addFields(soul.traits);
+            embed = await this.getEmbed(
+              await this.dataStoreService.getSoul(id),
+              this.configService.soul,
+            );
           } else {
             const wizard: Wizard = await this.dataStoreService.getWizard(id);
-            this._logger.log(`Fetched Wizard: ${wizard.name} (${id})`);
-            const fields = this.dataStoreService.getWizardFields(wizard);
-            embed = new MessageEmbed()
-              .setColor(wizard.backgroundColor)
-              .setAuthor(
-                `${wizard.name} (#${wizard.serial})`,
-                'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
-                `${this.configService.wizard.openSeaBaseURI}/${wizard.serial}`,
-              )
-              .setURL(
-                `${this.configService.wizard.openSeaBaseURI}/${wizard.serial}`,
-              )
-              .setThumbnail(
-                `${this.configService.wizard.imageURI}/${wizard.serial}.png`,
-              )
-              .addFields(fields);
+            wizard.traits = this.dataStoreService.getWizardFields(wizard);
+            embed = await this.getEmbed(wizard, this.configService.wizard);
           }
           break;
       }
+      if (embed === undefined) {
+        return;
+      }
       try {
+        this._logger.log(`Posting ${collection} (${id})`);
         message.reply({ embed: embed });
       } catch (error) {
         this._logger.error(`error posting wizard ${id}, ${error}`);
@@ -265,5 +215,20 @@ export class DiscordService {
 
   public async sleep(ms: number): Promise<any> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  public async getEmbed(i: Item, c: CollectionConfig): Promise<MessageEmbed> {
+    if (i === undefined) {
+      return;
+    }
+    return new MessageEmbed()
+      .setColor(i.backgroundColor)
+      .setAuthor(
+        `${i.name} (#${i.serial})`,
+        'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
+        `${c.openSeaBaseURI}/${i.serial}`,
+      )
+      .setURL(`${c.openSeaBaseURI}/${i.serial}`)
+      .setThumbnail(`${c.imageURI}/${i.serial}.png`)
+      .addFields(i.traits);
   }
 }

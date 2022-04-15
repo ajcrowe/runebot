@@ -12,6 +12,7 @@ import {
   Lock,
   LockAttrName,
   Beast,
+  Spawn,
   Trait,
 } from 'src/types';
 import { AppConfigService } from '../config';
@@ -339,6 +340,9 @@ export class DataStoreService {
         headers: { Accept: 'application/json' },
       };
       const response = await fetch(url, options);
+      if (response.status != 200) {
+        return undefined;
+      }
       const json = await response.json();
 
       const attrs: Array<Trait> = json.attributes;
@@ -383,6 +387,9 @@ export class DataStoreService {
         headers: { Accept: 'application/json' },
       };
       const response = await fetch(url, options);
+      if (response.status != 200) {
+        return undefined;
+      }
       const json = await response.json();
 
       const attrs: Array<Trait> = json.attributes;
@@ -396,6 +403,39 @@ export class DataStoreService {
         traits: traits,
         backgroundColor: json.background,
         description: json.description,
+      };
+    } catch (err) {
+      this._logger.error(err);
+    }
+  }
+
+  /*
+   * get Beast Spawn
+   */
+  public async getSpawn(id: string): Promise<Spawn> {
+    try {
+      const url = `${this.configService.spawn.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
+      if (response.status != 200) {
+        return undefined;
+      }
+      const json = await response.json();
+
+      const attrs: Array<Trait> = json.attributes;
+      const traits = [];
+      for (const attr of attrs) {
+        traits.push({ name: attr.trait_type, value: attr.value, inline: true });
+      }
+      traits.push({ name: 'Spawn of', value: json.group, inline: true });
+      return {
+        serial: id,
+        name: json.name,
+        traits: traits,
+        backgroundColor: json.background,
       };
     } catch (err) {
       this._logger.error(err);

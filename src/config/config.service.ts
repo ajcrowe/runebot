@@ -63,6 +63,13 @@ export class AppConfigService {
   }
 
   /**
+   * Spawn config
+   */
+  public get spawn(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('spawn');
+  }
+
+  /**
    * Discord config
    */
   public get discord(): DiscordConfig {

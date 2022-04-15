@@ -5,7 +5,7 @@ export interface Wizard {
   name: string;
   serial: string;
   nameLength: number;
-  traits: WizardTrait[];
+  traits: WizardTrait[] | any[];
   traitCount: number;
   backgroundColor: string;
   maxAffinity: number;
@@ -134,12 +134,27 @@ export enum BeastAttrName {
 }
 
 /**
+ * Beast Spawn
+ */
+export interface Spawn {
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
+}
+
+/**
  * Traits
  */
 export interface Trait {
   trait_type: string;
   value: string;
 }
+
+/**
+ * Item
+ */
+export type Item = Wizard | Soul | Pony | Lock | Beast | Spawn;
 
 export interface RarityConfig {
   color: string;

@@ -4,14 +4,16 @@
 export interface AppConfig {
   bot: BotConfig;
   ethereum: EthereumConfig;
+  discord: DiscordConfig;
+  twitter: TwitterConfig;
+  // collection config
   wizard: CollectionConfig;
   soul: CollectionConfig;
   pony: CollectionConfig;
   flame: CollectionConfig;
   lock: CollectionConfig;
   beast: CollectionConfig;
-  discord: DiscordConfig;
-  twitter: TwitterConfig;
+  spawn: CollectionConfig;
 }
 
 /**

@@ -48,6 +48,7 @@ export default (): AppConfig => ({
     tokenContract: '0x31158181b4b91a423bfdc758fc3bf8735711f9c5',
     tokenAbi: 'abis/flames.json',
     openSeaSlug: 'infinityveil',
+    forgottenSlug: 'infinityveil',
     dataURI:
       'https://cloudflare-ipfs.com/ipfs/QmebNYy9k7JFzofbYa6d7hr5AWYaPqtwqTjHe6gk2BBRm1',
     imageURI: '',
@@ -58,6 +59,7 @@ export default (): AppConfig => ({
     tokenContract: '0xda5cf3a42ebacd2d8fcb53830b1025e01d37832d',
     tokenAbi: 'abis/lock.json',
     openSeaSlug: 'forgottenrunesgatetotheseventhrealm',
+    forgottenSlug: 'forgottenrunesgatetotheseventhrealm',
     dataURI: 'https://portal.forgottenrunes.com/api/locks/data',
     imageURI: 'https://portal.forgottenrunes.com/api/locks/img',
     openSeaBaseURI:
@@ -67,10 +69,21 @@ export default (): AppConfig => ({
     tokenContract: '0x8634c23d5794ed177e9ffd55b22fdb80a505ab7b',
     tokenAbi: 'abis/beast.json',
     openSeaSlug: 'forgottenrunesbeasts',
+    forgottenSlug: 'forgottenrunesbeasts',
     dataURI: 'https://portal.forgottenrunes.com/api/beasts/data',
     imageURI: 'https://portal.forgottenrunes.com/api/beasts/img',
     openSeaBaseURI:
       'https://opensea.io/assets/0x8634c23d5794ed177e9ffd55b22fdb80a505ab7b',
+  },
+  spawn: {
+    tokenContract: '0x7de11a2d9e9727fa5ead3094e40211c5e9cf5857',
+    tokenAbi: 'abis/spawn.json',
+    openSeaSlug: 'forgottenrunesbeastspawn',
+    forgottenSlug: 'forgottenrunesbeastspawn',
+    dataURI: 'https://portal.forgottenrunes.com/api/spawn/data',
+    imageURI: 'https://portal.forgottenrunes.com/api/spawn/img',
+    openSeaBaseURI:
+      'https://opensea.io/assets/0x7de11a2d9e9727fa5ead3094e40211c5e9cf5857',
   },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,
