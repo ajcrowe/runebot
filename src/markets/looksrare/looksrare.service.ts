@@ -1,7 +1,6 @@
 import {
   CollectionConfig,
   Sale,
-  LR_GET_SALES,
   Market,
   MarketIcons,
 } from 'src/types';
@@ -11,17 +10,11 @@ import { AppConfigService } from '../../config';
 import { EthereumService } from '../../ethereum';
 import { DataStoreService } from '../../datastore';
 import { CacheService } from '../../cache';
-import 'cross-fetch/polyfill';
-import {
-  ApolloClient,
-  InMemoryCache,
-  NormalizedCacheObject,
-} from '@apollo/client/core';
+import axios, { AxiosResponse } from 'axios';
 
 @Injectable()
 export class LooksRareMarketService extends MarketService {
   private readonly _logger = new Logger(LooksRareMarketService.name);
-  private readonly _lrClient: ApolloClient<NormalizedCacheObject>;
 
   constructor(
     protected readonly configService: AppConfigService,
@@ -30,25 +23,6 @@ export class LooksRareMarketService extends MarketService {
     protected readonly dataStoreService: DataStoreService,
   ) {
     super();
-    this._lrClient = new ApolloClient({
-      uri: this.configService.bot.looksRareApi,
-      cache: new InMemoryCache(),
-      defaultOptions: this.apolloDefaultOptions,
-      headers: {
-        origin: 'https://looksrare.org',
-        referer: 'https://looksrare.org',
-        'content-type': 'application/json',
-        'sec-ch-ua':
-          'Not A;Brand";v="99", "Chromium";v="100", "Google Chrome";v="100',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': 'Linux',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent':
-          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36',
-      },
-    });
   }
 
   get name(): string {
@@ -59,46 +33,40 @@ export class LooksRareMarketService extends MarketService {
    * Get OS sales for specific collection
    */
   public async getSales(collection: CollectionConfig): Promise<Sale[]> {
-    const queryVariables = {
-      filter: {
-        collection: collection.tokenContract,
-        type: ['SALE'],
-      },
-      pagination: {
-        first: 20,
-      },
-    };
+    let sales: Array<Sale> = [];
     try {
-      this._logger.log(
-        `Checking for sales ${collection.openSeaSlug}/LooksRare`,
+      // wait random time to avoid spamming OS
+      await this.sleep(Math.floor(Math.random() * 5000));
+
+      const response: AxiosResponse = await axios.get(
+        `${this.configService.bot.looksRareApi}?collection=${collection.tokenContract}&type=SALE`,
+        {
+          method: 'get',
+          headers: {
+            Accept: 'application/json',
+          },
+          timeout: 10000,
+        },
       );
-      const response = await this._lrClient.query({
-        query: LR_GET_SALES,
-        variables: queryVariables,
-      });
-      if (response.error) {
-        this._logger.debug(response.error);
-      }
-      if (response.data.events.length) {
-        const sales = await this.createSales(response.data.events, collection);
+
+      if (response.data.data.length) {
+        sales = await this.createSales(response.data.data);
         this._logger.log(
           `Found ${sales.length} sales ${collection.openSeaSlug}/LooksRare`,
         );
-        return sales.reverse();
       } else {
         this._logger.log(`No sales ${collection.openSeaSlug}/LooksRare`);
-        return [];
       }
-    } catch (error) {
-      this._logger.error(error);
-      return [];
+    } catch (err) {
+      this._logger.error(`${err} (${collection.openSeaSlug}/LooksRare)`);
+    } finally {
+      return sales.reverse();
     }
   }
-
   /**
-   * Process OS json response into Sale[] object
+   * Process JSON response into Sale[] object
    */
-  async createSales(lrSales: any[], c: CollectionConfig): Promise<Sale[]> {
+  async createSales(lrSales: any[]): Promise<Sale[]> {
     const ethPrice = await this.getPrice('ethereum', 'usd');
     const sales: Array<Sale> = [];
     for (const sale of lrSales) {
@@ -111,30 +79,22 @@ export class LooksRareMarketService extends MarketService {
         if (await this.cacheService.isCached(cacheKey)) {
           break;
         }
-        const buyerName = await this.etherService.getDomain(sale.to.address);
-        const sellerName = await this.etherService.getDomain(sale.from.address);
+        const buyerName = await this.etherService.getDomain(sale.to);
+        const sellerName = await this.etherService.getDomain(sale.from);
         sales.push({
           id: sale.token.tokenId,
           title: `New Sale: ${sale.token.name} (#${sale.token.tokenId})`,
           tokenSymbol: 'WETH',
           tokenPrice: price,
           usdPrice: `(${(price * ethPrice).toFixed(2)} USD)`,
-          buyerAddr: sale.to.address,
-          buyerName: sale.to.name
-            ? `(${sale.to.name})`
-            : buyerName
-            ? `(${buyerName})`
-            : ``,
-          sellerAddr: sale.from.address,
-          sellerName: sale.from.name
-            ? `(${sale.from.name})`
-            : sellerName
-            ? `(${sellerName})`
-            : ``,
+          buyerAddr: sale.to,
+          buyerName: buyerName ? `(${buyerName})` : ``,
+          sellerAddr: sale.from,
+          sellerName: sellerName ? `(${sellerName})` : ``,
           txHash: sale.hash,
           cacheKey: cacheKey,
           permalink: `https://looksrare.org/collections/${sale.collection.address}/${sale.token.tokenId}`,
-          thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
+          thumbnail: sale.token.imageURI,
           backgroundColor: '000000',
           market: Market.LOOKSRARE,
           marketIcon: MarketIcons.LOOKSRARE,

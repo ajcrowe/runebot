@@ -28,6 +28,7 @@ export class OpenSeaMarketService extends MarketService {
    * Get OS sales for specific collection
    */
   public async getSales(collection: CollectionConfig): Promise<Sale[]> {
+    let sales: Array<Sale> = [];
     try {
       // wait random time to avoid spamming OS
       await this.sleep(Math.floor(Math.random() * 5000));
@@ -47,17 +48,17 @@ export class OpenSeaMarketService extends MarketService {
       );
 
       if (response.data.asset_events.length) {
-        const sales = await this.createSales(response.data.asset_events);
+        sales = await this.createSales(response.data.asset_events);
         this._logger.log(
           `Found ${sales.length} sales ${collection.openSeaSlug}/OpenSea`,
         );
-        return sales.reverse();
       } else {
         this._logger.log(`No sales ${collection.openSeaSlug}/OpenSea`);
-        return [];
       }
     } catch (err) {
       this._logger.error(`${err} (${collection.openSeaSlug}/OpenSea)`);
+    } finally {
+      return sales.reverse();
     }
   }
 

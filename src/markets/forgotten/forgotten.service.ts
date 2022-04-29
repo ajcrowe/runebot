@@ -28,6 +28,7 @@ export class ForgottenMarketService extends MarketService {
    * Get OS sales for specific collection
    */
   public async getSales(collection: CollectionConfig): Promise<Sale[]> {
+    let sales: Array<Sale> = [];
     try {
       this._logger.log(
         `Checking for sales ${collection.openSeaSlug}/Forgotten`,
@@ -44,17 +45,17 @@ export class ForgottenMarketService extends MarketService {
         },
       );
       if (response.data.sales.length) {
-        const sales = await this.createSales(response.data.sales, collection);
+        sales = await this.createSales(response.data.sales, collection);
         this._logger.log(
           `Found ${sales.length} sales ${collection.openSeaSlug}/Forgotten`,
         );
-        return sales.reverse();
       } else {
         this._logger.log(`No sales ${collection.openSeaSlug}/Forgotten`);
-        return [];
       }
     } catch (err) {
       this._logger.error(`${err} (${collection.openSeaSlug}/Forgotten)`);
+    } finally {
+      return sales.reverse();
     }
   }
 

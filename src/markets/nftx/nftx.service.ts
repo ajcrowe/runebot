@@ -74,7 +74,7 @@ export class NFTXMarketService extends MarketService {
       }
     }`;
 
-    //
+    let sales: Array<Sale> = [];
     try {
       this._logger.log(`Checking for sales${collection.openSeaSlug}/NFTx`);
       const response = await this._nftxClient.query({
@@ -84,17 +84,17 @@ export class NFTXMarketService extends MarketService {
         this._logger.debug(response.error);
       }
       if (response.data.redeems.length) {
-        const sales = await this.createSales(response.data.redeems, collection);
+        sales = await this.createSales(response.data.redeems, collection);
         this._logger.log(
           `Found ${sales.length} sales ${collection.openSeaSlug}/NFTx`,
         );
-        return sales.reverse();
       } else {
         this._logger.log(`No sales ${collection.openSeaSlug}/NFTx`);
-        return [];
       }
     } catch (error) {
       this._logger.error(error);
+    } finally {
+      return sales.reverse();
     }
   }
 

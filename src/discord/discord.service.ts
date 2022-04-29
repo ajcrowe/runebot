@@ -6,12 +6,7 @@ import toRegexRange from 'to-regex-range';
 import {
   CollectionConfig,
   Wizard,
-  Soul,
-  Pony,
   Sale,
-  Lock,
-  Beast,
-  Spawn,
   Item,
 } from 'src/types';
 import {
