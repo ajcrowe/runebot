@@ -3,12 +3,7 @@ import { AppConfigService } from '../config';
 import { EthereumService } from 'src/ethereum';
 import Discord, { TextChannel, MessageEmbed } from 'discord.js';
 import toRegexRange from 'to-regex-range';
-import {
-  CollectionConfig,
-  Wizard,
-  Sale,
-  Item,
-} from 'src/types';
+import { CollectionConfig, Wizard, Sale, Item } from 'src/types';
 import {
   OpenSeaMarketService,
   LooksRareMarketService,

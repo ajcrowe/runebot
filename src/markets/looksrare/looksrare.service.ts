@@ -1,9 +1,4 @@
-import {
-  CollectionConfig,
-  Sale,
-  Market,
-  MarketIcons,
-} from 'src/types';
+import { CollectionConfig, Sale, Market, MarketIcons } from 'src/types';
 import { MarketService } from '../market.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../../config';
