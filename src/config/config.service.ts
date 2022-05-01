@@ -70,6 +70,13 @@ export class AppConfigService {
   }
 
   /**
+   * Babies config
+   */
+   public get babies(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('babies');
+  }
+
+  /**
    * Discord config
    */
   public get discord(): DiscordConfig {
