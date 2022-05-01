@@ -60,7 +60,7 @@ export class DiscordService {
       if (c.openSeaSlug === 'forgottenruneswizardscult') {
         await this.postSales(await this.nftxMarket.getSales(c));
       }
-      if (c.openSeaSlug != 'forgottenrunesbeastspawn') {
+      if (c.openSeaSlug != 'babywizards') {
         await this.postSales(await this.forgottenMarket.getSales(c));
       }
     }

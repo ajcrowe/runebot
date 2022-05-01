@@ -14,6 +14,7 @@ export interface AppConfig {
   lock: CollectionConfig;
   beast: CollectionConfig;
   spawn: CollectionConfig;
+  babies: CollectionConfig;
 }
 
 /**

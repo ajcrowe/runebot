@@ -85,6 +85,16 @@ export default (): AppConfig => ({
     openSeaBaseURI:
       'https://opensea.io/assets/0x7de11a2d9e9727fa5ead3094e40211c5e9cf5857',
   },
+  babies: {
+    tokenContract: '0x4b1e130ae84c97b931ffbe91ead6b1da16993d45',
+    tokenAbi: 'abis/babies.json',
+    openSeaSlug: 'babywizards',
+    forgottenSlug: 'babywizards',
+    dataURI: 'http://forgottenbabies.com/uri/json',
+    imageURI: 'http://forgottenbabies.com/uri/json',
+    openSeaBaseURI:
+      'https://opensea.io/assets/0x4b1e130ae84c97b931ffbe91ead6b1da16993d45',
+  },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,
     salesChannelIds: process.env.DISCORD_SALES_CHANNEL_IDS.split(',') || [],
