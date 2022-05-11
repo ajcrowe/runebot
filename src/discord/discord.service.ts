@@ -218,7 +218,7 @@ export class DiscordService {
       .setAuthor(
         `${i.name} (#${i.serial})`,
         'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
-        `${c.openSeaBaseURI}/${i.serial}`,
+        `${this.configService.bot.forgottenBaseURI}/${c.tokenContract}/${i.serial}`,
       )
       .setURL(
         `${this.configService.bot.forgottenBaseURI}/${c.tokenContract}/${i.serial}`,
