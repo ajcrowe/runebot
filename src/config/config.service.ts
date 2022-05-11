@@ -37,7 +37,7 @@ export class AppConfigService {
   /**
    * Warrior config
    */
-   public get warrior(): CollectionConfig {
+  public get warrior(): CollectionConfig {
     return this.configService.get<CollectionConfig>('warrior');
   }
 

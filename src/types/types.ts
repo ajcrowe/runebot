@@ -146,7 +146,7 @@ export interface Spawn {
 /**
  * Warrior
  */
- export interface Warrior {
+export interface Warrior {
   name: string;
   serial: string;
   traits: any[];

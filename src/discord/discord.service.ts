@@ -17,7 +17,7 @@ import { CacheService } from 'src/cache';
 export class DiscordService {
   private readonly _logger = new Logger(DiscordService.name);
   private readonly _client = new Discord.Client();
-  private readonly _rangeRegex = new RegExp(`^${toRegexRange('1', '10000')}$`);
+  private readonly _rangeRegex = new RegExp(`^${toRegexRange('0', '9999')}$`);
 
   protected _salesChannels: Array<TextChannel>;
   protected _recentTransactions: Array<string>;
@@ -143,14 +143,9 @@ export class DiscordService {
       if (this.configService.isDevelopment) {
         if (message.channel.id != '843121547358109700') return;
       }
-
       const commandBody = message.content.slice(prefix.length);
       const args = commandBody.split(' ');
       const id = args[0].toLowerCase();
-      if (!this._rangeRegex.test(id)) {
-        this._logger.log(`Item out of range`);
-        return;
-      }
 
       const collection = args[1];
       let embed: MessageEmbed;
@@ -187,6 +182,10 @@ export class DiscordService {
           );
           break;
         default:
+          if (!this._rangeRegex.test(id)) {
+            this._logger.log(`Item out of range`);
+            return;
+          }
           if (await this.dataStoreService.checkSoul(id)) {
             embed = await this.getEmbed(
               await this.dataStoreService.getSoul(id),

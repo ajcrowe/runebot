@@ -443,7 +443,6 @@ export class DataStoreService {
     }
   }
 
-
   /*
    * get Warrior
    */
