@@ -10,6 +10,7 @@ export default (): AppConfig => ({
     forgottenApi: 'https://mainnet-api-v4.reservoir.tools/sales',
     nftxApi:
       'https://gateway.thegraph.com/api/690cf8d6987a151008c2536454bd3d7a/subgraphs/id/4gZf3atMXjYDh4g48Zr83NFX3rkvZED86VqMNhgEXgLc',
+    forgottenBaseURI: 'https://forgotten.market',
   },
   wizard: {
     tokenContract: '0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',

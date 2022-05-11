@@ -93,8 +93,12 @@ export class DiscordService {
         .addFields(this.getStandardFields(sale))
         .setFooter(sale.market, sale.marketIcon);
 
+      if (await this.cacheService.isCached(sale.cacheKey)) {
+        break;
+      } else {
+        await this.cacheService.cacheSale(sale.cacheKey);
+      }
       await this.postSale(embed);
-      await this.cacheService.cacheSale(sale.cacheKey);
     }
   }
 
@@ -113,17 +117,16 @@ export class DiscordService {
       },
       {
         name: 'Buyer',
-        value: `[${sale.buyerAddr.slice(0, -34)}](https://opensea.io/accounts/${
-          sale.buyerAddr
-        }) ${sale.buyerName}`,
+        value: `[${sale.buyerAddr.slice(0, -34)}](${
+          this.configService.bot.forgottenBaseURI
+        }/address/${sale.buyerAddr}) ${sale.buyerName}`,
         inline: true,
       },
       {
         name: 'Seller',
-        value: `[${sale.sellerAddr.slice(
-          0,
-          -34,
-        )}](https://opensea.io/accounts/${sale.sellerAddr}) ${sale.sellerName}`,
+        value: `[${sale.sellerAddr.slice(0, -34)}](${
+          this.configService.bot.forgottenBaseURI
+        }/address/${sale.sellerAddr}) ${sale.sellerName}`,
         inline: true,
       },
     ];
@@ -217,7 +220,9 @@ export class DiscordService {
         'https://cdn.discordapp.com/app-icons/843121928549957683/af28e4f65099eadebbb0635b1ea8d0b2.png?size=64',
         `${c.openSeaBaseURI}/${i.serial}`,
       )
-      .setURL(`${c.openSeaBaseURI}/${i.serial}`)
+      .setURL(
+        `${this.configService.bot.forgottenBaseURI}/${c.tokenContract}/${i.serial}`,
+      )
       .setThumbnail(`${c.imageURI}/${i.serial}.png`)
       .addFields(i.traits);
   }

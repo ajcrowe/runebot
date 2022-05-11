@@ -28,6 +28,7 @@ export interface BotConfig {
   nftxApi: string;
   forgottenApi: string;
   redisUri: string;
+  forgottenBaseURI: string;
 }
 
 /**

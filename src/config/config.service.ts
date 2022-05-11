@@ -72,7 +72,7 @@ export class AppConfigService {
   /**
    * Babies config
    */
-   public get babies(): CollectionConfig {
+  public get babies(): CollectionConfig {
     return this.configService.get<CollectionConfig>('babies');
   }
 
