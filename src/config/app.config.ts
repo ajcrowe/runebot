@@ -35,6 +35,16 @@ export default (): AppConfig => ({
     openSeaBaseURI:
       'https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f',
   },
+  warrior: {
+    tokenContract: '0x9690b63eb85467be5267a3603f770589ab12dc95',
+    tokenAbi: 'abis/warriors.json',
+    openSeaSlug: 'forgottenruneswarriorsguild',
+    forgottenSlug: 'forgottenruneswarriorsguild',
+    dataURI: 'https://portal.forgottenrunes.com/api/warriors/data/',
+    imageURI: 'https://portal.forgottenrunes.com/api/warriors/img/',
+    openSeaBaseURI:
+      'https://opensea.io/assets/0x9690b63Eb85467BE5267A3603f770589Ab12Dc95',
+  },
   pony: {
     tokenContract: '0xf55b615b479482440135ebf1b907fd4c37ed9420',
     tokenAbi: 'abis/ponies.json',

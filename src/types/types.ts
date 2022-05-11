@@ -144,6 +144,16 @@ export interface Spawn {
 }
 
 /**
+ * Warrior
+ */
+ export interface Warrior {
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
+}
+
+/**
  * Traits
  */
 export interface Trait {

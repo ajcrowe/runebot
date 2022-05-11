@@ -36,7 +36,7 @@ export class OpenSeaMarketService extends MarketService {
       this._logger.log(`Checking for sales ${collection.openSeaSlug}/OpenSea`);
 
       const response: AxiosResponse = await axios.get(
-        `https://api.opensea.io/api/v1/events?collection_slug=${collection.openSeaSlug}&event_type=successful&only_opensea=false`,
+        `https://api.opensea.io/api/v1/events?asset_contract_address=${collection.tokenContract}&event_type=successful&only_opensea=false`,
         {
           method: 'get',
           headers: {

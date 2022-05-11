@@ -27,6 +27,7 @@ export class AppService {
         this._discord.checkSales([
           this.configService.wizard,
           this.configService.soul,
+          this.configService.warrior,
           this.configService.pony,
           this.configService.flame,
           this.configService.lock,

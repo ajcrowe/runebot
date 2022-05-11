@@ -35,6 +35,13 @@ export class AppConfigService {
   }
 
   /**
+   * Warrior config
+   */
+   public get warrior(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('warrior');
+  }
+
+  /**
    * Pony config
    */
   public get pony(): CollectionConfig {

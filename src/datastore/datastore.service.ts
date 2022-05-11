@@ -13,6 +13,7 @@ import {
   LockAttrName,
   Beast,
   Spawn,
+  Warrior,
   Trait,
 } from 'src/types';
 import { AppConfigService } from '../config';
@@ -436,6 +437,39 @@ export class DataStoreService {
         name: json.name,
         traits: traits,
         backgroundColor: json.background,
+      };
+    } catch (err) {
+      this._logger.error(err);
+    }
+  }
+
+
+  /*
+   * get Warrior
+   */
+  public async getWarrior(id: string): Promise<Warrior> {
+    try {
+      const url = `${this.configService.warrior.dataURI}/${id}`;
+      const options = {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      };
+      const response = await fetch(url, options);
+      if (response.status != 200) {
+        return undefined;
+      }
+      const json = await response.json();
+
+      const attrs: Array<Trait> = json.attributes ? json.attributes : [];
+      const traits = [];
+      for (const attr of attrs) {
+        traits.push({ name: attr.trait_type, value: attr.value, inline: true });
+      }
+      return {
+        serial: id,
+        name: json.name,
+        traits: traits,
+        backgroundColor: json.background ? json.background : '000000',
       };
     } catch (err) {
       this._logger.error(err);

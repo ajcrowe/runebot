@@ -9,6 +9,7 @@ export interface AppConfig {
   // collection config
   wizard: CollectionConfig;
   soul: CollectionConfig;
+  warrior: CollectionConfig;
   pony: CollectionConfig;
   flame: CollectionConfig;
   lock: CollectionConfig;

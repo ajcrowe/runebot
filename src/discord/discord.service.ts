@@ -180,6 +180,12 @@ export class DiscordService {
             this.configService.lock,
           );
           break;
+        case 'warrior':
+          embed = await this.getEmbed(
+            await this.dataStoreService.getWarrior(id),
+            this.configService.warrior,
+          );
+          break;
         default:
           if (await this.dataStoreService.checkSoul(id)) {
             embed = await this.getEmbed(
