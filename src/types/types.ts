@@ -154,6 +154,23 @@ export interface Warrior {
 }
 
 /**
+ * Soul Attribute names
+ */
+export enum WarriorAttrName {
+  Background = 'background',
+  Body = 'body',
+  Head = 'head',
+  Weapon = 'weapon',
+  Rune = 'rune',
+  Shield = 'shield',
+  Companion = 'companion',
+  Affinity = 'Affinity',
+  TraitsCount = '# Traits',
+  TraitsAffinityCount = '# Traits in Affinity',
+  TraitsAffinityPercent = '% Traits in Affinity',
+}
+
+/**
  * Traits
  */
 export interface Trait {

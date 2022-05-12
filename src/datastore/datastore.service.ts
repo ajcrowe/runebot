@@ -14,11 +14,13 @@ import {
   Beast,
   Spawn,
   Warrior,
+  WarriorAttrName,
   Trait,
 } from 'src/types';
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';
 import data from '../wizard-summary.json';
+import { stringify } from 'querystring';
 
 @Injectable()
 export class DataStoreService {
@@ -459,16 +461,77 @@ export class DataStoreService {
       }
       const json = await response.json();
 
+      let background: string,
+        companion: string,
+        body: string,
+        head: string,
+        shield: string,
+        weapon: string,
+        rune: string,
+        affinity: string,
+        traitsCount: string,
+        traitsAffinityCount: string;
+
       const attrs: Array<Trait> = json.attributes ? json.attributes : [];
       const traits = [];
       for (const attr of attrs) {
-        traits.push({ name: attr.trait_type, value: attr.value, inline: true });
+        switch (attr.trait_type) {
+          case WarriorAttrName['Background']:
+            background = attr.value;
+            break;
+          case WarriorAttrName['Body']:
+            body = attr.value;
+            break;
+          case WarriorAttrName['Head']:
+            head = attr.value;
+            break;
+          case WarriorAttrName['Weapon']:
+            weapon = attr.value;
+            break;
+          case WarriorAttrName['Rune']:
+            rune = attr.value;
+            break;
+          case WarriorAttrName['Shield']:
+            shield = attr.value;
+            break;
+          case WarriorAttrName['Companion']:
+            companion = attr.value;
+            break;
+          case WarriorAttrName['Affinity']:
+            affinity = attr.value;
+            break;
+          case WarriorAttrName['TraitsCount']:
+            traitsCount = attr.value;
+            break;
+          case WarriorAttrName['TraitsAffinityCount']:
+            traitsAffinityCount = attr.value;
+            break;
+        }
       }
+      traits.push({ name: 'Head', value: head, inline: true });
+      traits.push({ name: 'Body', value: body, inline: true });
+      traits.push({ name: 'Weapon', value: weapon, inline: true });
+      if (shield) {
+        traits.push({ name: 'Shield', value: shield, inline: true });
+      }
+      if (companion) {
+        traits.push({ name: 'Companion', value: companion, inline: true });
+      }
+      if (rune) {
+        traits.push({ name: 'Rune', value: rune, inline: true });
+      }
+
+      traits.push({
+        name: 'Affinity',
+        value: `${affinity} (${traitsAffinityCount}/${traitsCount})`,
+        inline: true,
+      });
+
       return {
         serial: id,
         name: json.name,
         traits: traits,
-        backgroundColor: json.background ? json.background : '000000',
+        backgroundColor: json.background_color,
       };
     } catch (err) {
       this._logger.error(err);
