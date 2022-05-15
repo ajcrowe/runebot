@@ -57,7 +57,7 @@ export class DiscordService {
     for (const c of cs) {
       await this.postSales(await this.openSeaMarket.getSales(c));
       await this.postSales(await this.looksRareMarket.getSales(c));
-      if (c.openSeaSlug === 'forgottenruneswizardscult') {
+      if (c.nftxVaultContract) {
         await this.postSales(await this.nftxMarket.getSales(c));
       }
       if (c.openSeaSlug != 'babywizards') {
@@ -152,30 +152,35 @@ export class DiscordService {
 
       switch (collection) {
         case 'pony':
+        case 'ponies':
           embed = await this.getEmbed(
             await this.dataStoreService.getPony(id),
             this.configService.pony,
           );
           break;
         case 'beast':
+        case 'beasts':
           embed = await this.getEmbed(
             await this.dataStoreService.getBeast(id),
             this.configService.beast,
           );
           break;
         case 'spawn':
+        case 'spawns':
           embed = await this.getEmbed(
             await this.dataStoreService.getSpawn(id),
             this.configService.spawn,
           );
           break;
         case 'lock':
+        case 'locks':
           embed = await this.getEmbed(
             await this.dataStoreService.getLock(id),
             this.configService.lock,
           );
           break;
         case 'warrior':
+        case 'warriors':
           embed = await this.getEmbed(
             await this.dataStoreService.getWarrior(id),
             this.configService.warrior,

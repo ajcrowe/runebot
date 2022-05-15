@@ -1,4 +1,4 @@
-import { CollectionConfig, Sale, Wizard, Market, MarketIcons } from 'src/types';
+import { CollectionConfig, Sale, Item, Market, MarketIcons } from 'src/types';
 import { MarketService } from '../market.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../../config';
@@ -17,6 +17,7 @@ import {
 export class NFTXMarketService extends MarketService {
   private readonly _logger = new Logger(NFTXMarketService.name);
   private readonly _nftxClient: ApolloClient<NormalizedCacheObject>;
+  private readonly _sushiClient: ApolloClient<NormalizedCacheObject>;
 
   constructor(
     protected readonly configService: AppConfigService,
@@ -27,6 +28,11 @@ export class NFTXMarketService extends MarketService {
     super();
     this._nftxClient = new ApolloClient({
       uri: this.configService.bot.nftxApi,
+      cache: new InMemoryCache(),
+      defaultOptions: this.apolloDefaultOptions,
+    });
+    this._sushiClient = new ApolloClient({
+      uri: this.configService.bot.sushiApi,
       cache: new InMemoryCache(),
       defaultOptions: this.apolloDefaultOptions,
     });
@@ -52,6 +58,10 @@ export class NFTXMarketService extends MarketService {
         orderDirection: desc
       ) {
         id
+        zapAction {
+          ethAmount
+          id
+        }
         vault {
           id
           vaultId
@@ -62,13 +72,18 @@ export class NFTXMarketService extends MarketService {
             id
           }
         }
+        user {
+          id
+        }
         date
         nftIds
         specificIds
         randomCount
         targetCount
         feeReceipt {
-          amount
+          transfers {
+            amount
+          }
           date
         }
       }
@@ -102,23 +117,57 @@ export class NFTXMarketService extends MarketService {
    * Process OS json response into Sale[] object
    */
   async createSales(redeems: any[], c: CollectionConfig): Promise<Sale[]> {
-    const price = (await this.getPrice('wizard-vault-nftx', 'eth')) * 1.05;
-    const usdPrice = price * (await this.getPrice('ethereum', 'usd'));
+    const SUSHI_GET_TOKEN = gql`
+    {
+      tokens(
+        where: {id: "${c.nftxVaultContract}"}
+      ) {
+        ...tokenFields
+      }
+    }
 
+    fragment tokenFields on Token {
+      id
+      symbol
+      name
+      decimals
+      totalSupply
+      volume
+      volumeUSD
+      untrackedVolumeUSD
+      txCount
+      liquidity
+      derivedETH
+    }`;
+
+    const ethUsd = await this.getPrice('ethereum', 'usd');
+    let price: number;
+    try {
+      const resp = await this._sushiClient.query({
+        query: SUSHI_GET_TOKEN,
+      });
+      price = Number(resp.data.tokens[0].derivedETH);
+    } catch (err) {
+      this._logger.error(err);
+    }
     const sales: Array<Sale> = [];
     for (const sale of redeems) {
+      const usdPrice = price * ethUsd;
       const cacheKey = sale.id;
       // check if sale already in broadcast
       if (await this.cacheService.isCached(cacheKey)) {
         break;
       }
-      for (const nft of sale.nftIds) {
-        const wizard: Wizard = await this.dataStoreService.getWizard(nft);
-        const buyerAddr = await this.etherService.getOwner(c, wizard.serial);
+      for (const nftId of sale.nftIds) {
+        const item: Item = await this.dataStoreService.getItem(
+          nftId,
+          sale.vault.token.symbol,
+        );
+        const buyerAddr = await this.etherService.getOwner(c, item.serial);
         const buyerName = await this.etherService.getDomain(buyerAddr);
         sales.push({
-          id: wizard.serial,
-          title: `New Sale: ${wizard.name} (#${wizard.serial})`,
+          id: item.serial,
+          title: `New Sale: ${item.name} (#${nftId})`,
           tokenSymbol: 'ETH',
           tokenPrice: price,
           usdPrice: `(${usdPrice.toFixed(2)} USD)`,
@@ -128,8 +177,8 @@ export class NFTXMarketService extends MarketService {
           sellerName: ``,
           txHash: sale.id,
           cacheKey: cacheKey,
-          permalink: `https://nftx.io/vault/${sale.vault.id}/${wizard.serial}`,
-          thumbnail: `${c.imageURI}/${wizard.serial}.png`,
+          permalink: `https://nftx.io/vault/${sale.vault.id}/${nftId}`,
+          thumbnail: `${c.imageURI}/${nftId}.png`,
           backgroundColor: '000000',
           market: Market.NFTX,
           marketIcon: MarketIcons.NFTX,

@@ -181,7 +181,7 @@ export interface Trait {
 /**
  * Item
  */
-export type Item = Wizard | Soul | Pony | Lock | Beast | Spawn;
+export type Item = Wizard | Warrior | Soul | Pony | Lock | Beast | Spawn;
 
 export interface RarityConfig {
   color: string;

@@ -16,6 +16,7 @@ import {
   Warrior,
   WarriorAttrName,
   Trait,
+  Item,
 } from 'src/types';
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';
@@ -32,7 +33,22 @@ export class DataStoreService {
 
   constructor(protected readonly configService: AppConfigService) {}
 
-  /*
+  /**
+   * Get Item by id and symbol
+   * @param id
+   * @param item
+   * @returns Item
+   */
+  public async getItem(id: string, item: string): Promise<Item> {
+    switch (item) {
+      case 'WARRIOR':
+        return this.getWarrior(id);
+      case 'WIZARD':
+        return this.getWizard(id);
+    }
+  }
+
+  /**
    * Get Wizard by ID
    */
   public async getWizard(id: string): Promise<Wizard> {

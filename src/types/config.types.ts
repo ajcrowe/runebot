@@ -27,6 +27,7 @@ export interface BotConfig {
   openSeaApiKey: string;
   looksRareApi: string;
   nftxApi: string;
+  sushiApi: string;
   forgottenApi: string;
   redisUri: string;
   forgottenBaseURI: string;
@@ -47,6 +48,7 @@ export interface CollectionConfig {
   tokenContract: string;
   tokenAbi: string;
   nftxVaultContract?: string;
+  nftxTokenSymbol?: string;
   openSeaSlug: string;
   dataURI?: string;
   imageURI?: string;

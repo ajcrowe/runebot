@@ -9,7 +9,8 @@ export default (): AppConfig => ({
     looksRareApi: 'https://api.looksrare.org/api/v1/events',
     forgottenApi: 'https://mainnet-api-v4.reservoir.tools/sales',
     nftxApi:
-      'https://gateway.thegraph.com/api/690cf8d6987a151008c2536454bd3d7a/subgraphs/id/4gZf3atMXjYDh4g48Zr83NFX3rkvZED86VqMNhgEXgLc',
+      'https://graph-proxy.nftx.xyz/shared/subgraphs/name/nftx-project/nftx-v2',
+    sushiApi: 'https://api.thegraph.com/subgraphs/name/sushiswap/exchange',
     forgottenBaseURI: 'https://forgotten.market',
   },
   wizard: {
@@ -25,6 +26,17 @@ export default (): AppConfig => ({
     openSeaBaseURI:
       'https://opensea.io/assets/0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42',
   },
+  warrior: {
+    tokenContract: '0x9690b63eb85467be5267a3603f770589ab12dc95',
+    tokenAbi: 'abis/warriors.json',
+    nftxVaultContract: '0xe218a21d03dea706d114d9c4490950375f3b7c05',
+    openSeaSlug: 'forgottenruneswarriorsguild',
+    forgottenSlug: 'forgottenruneswarriorsguild',
+    dataURI: 'https://portal.forgottenrunes.com/api/warriors/data/',
+    imageURI: 'https://portal.forgottenrunes.com/api/warriors/img/',
+    openSeaBaseURI:
+      'https://opensea.io/assets/0x9690b63Eb85467BE5267A3603f770589Ab12Dc95',
+  },
   soul: {
     tokenContract: '0x251b5f14a825c537ff788604ea1b58e49b70726f',
     tokenAbi: 'abis/souls.json',
@@ -34,16 +46,6 @@ export default (): AppConfig => ({
     imageURI: 'https://portal.forgottenrunes.com/api/souls/img',
     openSeaBaseURI:
       'https://opensea.io/assets/0x251b5f14a825c537ff788604ea1b58e49b70726f',
-  },
-  warrior: {
-    tokenContract: '0x9690b63eb85467be5267a3603f770589ab12dc95',
-    tokenAbi: 'abis/warriors.json',
-    openSeaSlug: 'forgottenruneswarriorsguild',
-    forgottenSlug: 'forgottenruneswarriorsguild',
-    dataURI: 'https://portal.forgottenrunes.com/api/warriors/data/',
-    imageURI: 'https://portal.forgottenrunes.com/api/warriors/img/',
-    openSeaBaseURI:
-      'https://opensea.io/assets/0x9690b63Eb85467BE5267A3603f770589Ab12Dc95',
   },
   pony: {
     tokenContract: '0xf55b615b479482440135ebf1b907fd4c37ed9420',
