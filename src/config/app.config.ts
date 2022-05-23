@@ -7,7 +7,7 @@ export default (): AppConfig => ({
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
     redisUri: process.env.REDIS_URI || 'redis://localhost:6379',
     looksRareApi: 'https://api.looksrare.org/api/v1/events',
-    forgottenApi: 'https://mainnet-api-v4.reservoir.tools/sales',
+    forgottenApi: 'https://api.reservoir.tools/sales/v3',
     nftxApi:
       'https://graph-proxy.nftx.xyz/shared/subgraphs/name/nftx-project/nftx-v2',
     sushiApi: 'https://api.thegraph.com/subgraphs/name/sushiswap/exchange',
