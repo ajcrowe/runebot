@@ -35,7 +35,7 @@ export class ForgottenMarketService extends MarketService {
       );
 
       const response: AxiosResponse = await axios.get(
-        `${this.configService.bot.forgottenApi}?collection=${collection.forgottenSlug}&offset=0&limit=20`,
+        `${this.configService.bot.forgottenApi}?collection=${collection.tokenContract}`,
         {
           method: 'get',
           headers: {
