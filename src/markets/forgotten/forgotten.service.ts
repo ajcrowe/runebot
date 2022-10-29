@@ -90,7 +90,7 @@ export class ForgottenMarketService extends MarketService {
           sellerName: sellerName ? `(${sellerName})` : ``,
           txHash: sale.txHash,
           cacheKey: cacheKey,
-          permalink: `https://forgotten.market/en-US/${c.tokenContract}/${sale.token.tokenId}`,
+          permalink: `https://forgotten.market/${c.tokenContract}/${sale.token.tokenId}`,
           thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
           backgroundColor: '000000',
           market: Market.FORGOTTEN,
