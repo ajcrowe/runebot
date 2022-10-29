@@ -20,8 +20,8 @@ import {
 } from 'src/types';
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';
-import data from '../wizard-summary.json';
-import { stringify } from 'querystring';
+import wizardData from '../wizard-summary.json';
+import warriorData from '../warriors.json';
 
 @Injectable()
 export class DataStoreService {
@@ -53,7 +53,7 @@ export class DataStoreService {
    */
   public async getWizard(id: string): Promise<Wizard> {
     try {
-      const wizardJson = data.wizards[id],
+      const wizardJson = wizardData.wizards[id],
         traits = [];
       let color: string;
       for (const trait in wizardJson.traits) {
@@ -64,7 +64,7 @@ export class DataStoreService {
         traits.push({
           name: name.charAt(0).toUpperCase() + name.substring(1),
           value: value,
-          rarity: data.traitOccurences[wizardJson.traits[trait]],
+          rarity: wizardData.traitOccurences[wizardJson.traits[trait]],
         });
       }
       return {
@@ -89,7 +89,7 @@ export class DataStoreService {
     const fields = [];
 
     // this is ugly
-    let rarity = data.traitCounts[wizard.traitCount];
+    let rarity = wizardData.traitCounts[wizard.traitCount];
     let rarityName = this.getRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Traits`,
@@ -97,7 +97,7 @@ export class DataStoreService {
       inline: true,
     });
 
-    rarity = data.nameLengths[wizard.nameLength];
+    rarity = wizardData.nameLengths[wizard.nameLength];
     rarityName = this.getRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Name Length`,
@@ -105,7 +105,7 @@ export class DataStoreService {
       inline: true,
     });
 
-    rarity = data.affinityOccurences[wizard.maxAffinity];
+    rarity = wizardData.affinityOccurences[wizard.maxAffinity];
     rarityName = this.getAffinityRarityDescriptor(rarity);
     fields.push({
       name: `${rarityName} Affinity`,
@@ -524,6 +524,7 @@ export class DataStoreService {
             break;
         }
       }
+      traits.push({ name: 'Background', value: background, inline: true });
       traits.push({ name: 'Head', value: head, inline: true });
       traits.push({ name: 'Body', value: body, inline: true });
       traits.push({ name: 'Weapon', value: weapon, inline: true });
