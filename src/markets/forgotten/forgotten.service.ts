@@ -95,7 +95,7 @@ export class ForgottenMarketService extends MarketService {
         try {
           sales.push({
             id: sale.token.tokenId,
-            title: `DEBUG New Sale: ${item.name} (#${sale.token.tokenId})`,
+            title: `New Sale: ${item.name} (#${sale.token.tokenId})`,
             tokenSymbol: sale.price.currency.symbol,
             tokenPrice: sale.price.amount.native,
             usdPrice: `(${sale.price.amount.usd.toFixed(2)} USD)`,
