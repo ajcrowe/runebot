@@ -21,7 +21,6 @@ import {
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';
 import wizardData from '../wizard-summary.json';
-import warriorData from '../warriors.json';
 
 @Injectable()
 export class DataStoreService {
@@ -45,6 +44,25 @@ export class DataStoreService {
         return this.getWarrior(id);
       case 'WIZARD':
         return this.getWizard(id);
+    }
+  }
+
+  public async getItemByContract(id: string, contract: string): Promise<Item> {
+    switch (contract) {
+      case this.configService.warrior.tokenContract:
+        return this.getWarrior(id);
+      case this.configService.wizard.tokenContract:
+        return this.getWizard(id);
+      case this.configService.beast.tokenContract:
+        return this.getBeast(id);
+      case this.configService.lock.tokenContract:
+        return this.getLock(id);
+      case this.configService.soul.tokenContract:
+        return this.getSoul(id);
+      case this.configService.spawn.tokenContract:
+        return this.getSpawn(id);
+      case this.configService.pony.tokenContract:
+        return this.getPony(id);
     }
   }
 

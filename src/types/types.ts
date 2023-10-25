@@ -279,6 +279,11 @@ export enum Market {
   LOOKSRARE = 'Looks Rare',
   NFTX = 'NFTX',
   FORGOTTEN = 'Forgotten Market',
+  BLUR = 'Blur',
+  GEM = 'OpenSea Pro',
+  ZAAR = 'Zaar',
+  X2Y2 = 'X2Y2',
+  SUDOSWAP = 'Sudoswap',
 }
 
 export enum MarketIcons {
@@ -286,6 +291,30 @@ export enum MarketIcons {
   LOOKSRARE = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/lr.png',
   NFTX = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/nft-x.png',
   FORGOTTEN = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/forgotten.png',
+  BLUR = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/blur.png',
+  GEM = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/gem.png',
+  ZAAR = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/zaar.png',
+  X2Y2 = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/x2y2.png',
+  SUDOSWAP = 'https://raw.githubusercontent.com/ajcrowe/runebot/master/assets/x2y2.png',
+}
+
+export enum MarketURI {
+  OPENSEA = 'opensea.io',
+  OPENSEAPRO = 'pro.opensea.io',
+  LOOKSRARE = 'looksrare.org',
+  NFTX = 'nftx.io',
+  FORGOTTEN = 'forgotten.market',
+  BLUR = 'blur.io',
+  GEM = 'gem.xyz',
+  ZAAR = 'zaar.market',
+  X2Y2 = 'x2y2.io',
+  SUDOSWAP = 'sudoswap.xyz',
+}
+
+export interface MarketMetaData {
+  name: string;
+  icon: string;
+  uri: string;
 }
 
 /**

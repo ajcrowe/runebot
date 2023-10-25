@@ -16,6 +16,9 @@ export interface AppConfig {
   beast: CollectionConfig;
   spawn: CollectionConfig;
   babies: CollectionConfig;
+  treats: CollectionConfig;
+  tricks: CollectionConfig;
+  boxes: CollectionConfig;
 }
 
 /**
@@ -24,10 +27,6 @@ export interface AppConfig {
 export interface BotConfig {
   salesCheckCron: string;
   salesLookbackSeconds: number;
-  openSeaApiKey: string;
-  looksRareApi: string;
-  nftxApi: string;
-  sushiApi: string;
   forgottenApi: string;
   redisUri: string;
   forgottenBaseURI: string;
@@ -47,12 +46,8 @@ export interface EthereumConfig {
 export interface CollectionConfig {
   tokenContract: string;
   tokenAbi: string;
-  nftxVaultContract?: string;
-  nftxTokenSymbol?: string;
-  openSeaSlug: string;
   dataURI?: string;
   imageURI?: string;
-  openSeaBaseURI?: string;
   forgottenSlug?: string;
 }
 

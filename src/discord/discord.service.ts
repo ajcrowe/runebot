@@ -4,12 +4,7 @@ import { EthereumService } from 'src/ethereum';
 import Discord, { TextChannel, MessageEmbed } from 'discord.js';
 import toRegexRange from 'to-regex-range';
 import { CollectionConfig, Wizard, Sale, Item } from 'src/types';
-import {
-  OpenSeaMarketService,
-  LooksRareMarketService,
-  NFTXMarketService,
-  ForgottenMarketService,
-} from 'src/markets';
+import { ForgottenMarketService } from 'src/markets';
 import { DataStoreService } from '../datastore';
 import { CacheService } from 'src/cache';
 
@@ -31,9 +26,6 @@ export class DiscordService {
     protected readonly etherService: EthereumService,
     protected readonly dataStoreService: DataStoreService,
     protected readonly cacheService: CacheService,
-    protected readonly openSeaMarket: OpenSeaMarketService,
-    protected readonly looksRareMarket: LooksRareMarketService,
-    protected readonly nftxMarket: NFTXMarketService,
     protected readonly forgottenMarket: ForgottenMarketService,
   ) {
     const { token, salesChannelIds } = this.configService.discord;
@@ -55,14 +47,7 @@ export class DiscordService {
    */
   public async checkSales(cs: CollectionConfig[]): Promise<void> {
     for (const c of cs) {
-      await this.postSales(await this.openSeaMarket.getSales(c));
-      await this.postSales(await this.looksRareMarket.getSales(c));
-      if (c.nftxVaultContract) {
-        await this.postSales(await this.nftxMarket.getSales(c));
-      }
-      if (c.openSeaSlug != 'babywizards') {
-        await this.postSales(await this.forgottenMarket.getSales(c));
-      }
+      await this.postSales(await this.forgottenMarket.getSales(c));
     }
   }
 
