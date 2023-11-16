@@ -4,7 +4,7 @@ export default (): AppConfig => ({
   bot: {
     salesCheckCron: process.env.SALES_CHECK_CRON || '*/1 * * * *',
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
-    redisUri: process.env.REDIS_URI || 'redis://localhost:6379',
+    redisUri: process.env.REDIS_URL || 'redis://localhost:6379',
     forgottenApi: 'https://forgotten.market/api/sales/v6',
     forgottenBaseURI: 'https://forgotten.market',
   },
