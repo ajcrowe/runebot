@@ -19,6 +19,7 @@ export interface AppConfig {
   treats: CollectionConfig;
   tricks: CollectionConfig;
   boxes: CollectionConfig;
+  rings: CollectionConfig;
 }
 
 /**

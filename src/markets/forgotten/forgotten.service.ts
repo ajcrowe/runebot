@@ -43,7 +43,7 @@ export class ForgottenMarketService extends MarketService {
       );
 
       const response: AxiosResponse = await axios.get(
-        `${this.configService.bot.forgottenApi}?collection=${collection.tokenContract}`,
+        `${this.configService.bot.forgottenApi}?includeTokenMetadata=true&collection=${collection.tokenContract}`,
         {
           method: 'get',
           headers: {
@@ -88,14 +88,31 @@ export class ForgottenMarketService extends MarketService {
         }
         const buyerName = await this.etherService.getDomain(sale.to);
         const sellerName = await this.etherService.getDomain(sale.from);
-        const item: Item = await this.dataStoreService.getItemByContract(
-          sale.token.tokenId,
-          c.tokenContract,
-        );
+
+        let name = sale?.token?.name;
+        let thumbnail = sale?.token?.image;
+
+        if (!name) {
+          this._logger.log(`No name  in sale data, fetching individually`);
+
+          const item: Item = await this.dataStoreService.getItemByContract(
+            sale.token.tokenId,
+            c.tokenContract,
+          );
+
+          this._logger.debug(item);
+
+          name = item.name;
+        }
+
+        if (!thumbnail) {
+          thumbnail = `${c.imageURI}/${sale.token.tokenId}.png`;
+        }
+        
         try {
           sales.push({
             id: sale.token.tokenId,
-            title: `New Sale: ${item.name} (#${sale.token.tokenId})`,
+            title: `New Sale: ${name} (#${sale.token.tokenId})`,
             tokenSymbol: sale.price.currency.symbol,
             tokenPrice: sale.price.amount.native,
             usdPrice: `(${sale.price.amount.usd.toFixed(2)} USD)`,
@@ -106,14 +123,13 @@ export class ForgottenMarketService extends MarketService {
             txHash: sale.txHash,
             cacheKey: cacheKey,
             permalink: `https://forgotten.market/${c.tokenContract}/${sale.token.tokenId}`,
-            thumbnail: `${c.imageURI}/${sale.token.tokenId}.png`,
+            thumbnail,
             backgroundColor: '000000',
             market: market.name,
             marketIcon: market.icon,
           });
         } catch (err) {
-          this._logger.error(`${err} ${item} ${market}`);
-          this._logger.debug(item);
+          this._logger.error(`${err}  ${market}`);
           this._logger.debug(market);
         }
       }

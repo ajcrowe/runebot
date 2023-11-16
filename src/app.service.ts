@@ -33,6 +33,7 @@ export class AppService {
           this.configService.lock,
           this.configService.beast,
           this.configService.spawn,
+          this.configService.rings
         ]);
       },
     );

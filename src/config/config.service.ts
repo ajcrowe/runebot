@@ -84,6 +84,13 @@ export class AppConfigService {
   }
 
   /**
+   * Rings config
+   */
+  public get rings(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('rings');
+  }
+
+  /**
    * Discord config
    */
   public get discord(): DiscordConfig {

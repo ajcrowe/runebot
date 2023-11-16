@@ -95,6 +95,13 @@ export default (): AppConfig => ({
     dataURI: 'https://portal.forgottenrunes.com/api/halloween/boxes/data/',
     imageURI: 'https://portal.forgottenrunes.com/api/halloween/boxes/img',
   },
+  rings: {
+    tokenContract: '0x5d4aa6ff9de7963ead5a17b454dc1093ca9e98e7',
+    tokenAbi: 'nope',
+    forgottenSlug: 'forgottenruniversewatchersrings',
+    dataURI: 'https://api.runiverse.world/GetRingInfo?RingId=',
+    imageURI: 'https://raw.seadn.io/files/debfd109e4eec9478d9e174b9492f769.gif',
+  },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,
     salesChannelIds: process.env.DISCORD_SALES_CHANNEL_IDS.split(',') || [],
