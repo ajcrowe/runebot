@@ -5,7 +5,8 @@ export default (): AppConfig => ({
     salesCheckCron: process.env.SALES_CHECK_CRON || '*/1 * * * *',
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
     redisUri: process.env.REDIS_URL || 'redis://localhost:6379',
-    forgottenApi: 'https://forgotten.market/api/sales/v6',
+    reservoirApiMainnet: 'https://forgotten.market/api/sales/v6',
+    reservoirApiArbitrum: 'https://api-arbitrum.reservoir.tools/sales/v6', // TODO: switch to our paid version?
     forgottenBaseURI: 'https://forgotten.market',
   },
   wizard: {
@@ -97,10 +98,12 @@ export default (): AppConfig => ({
   },
   rings: {
     tokenContract: '0x5d4aa6ff9de7963ead5a17b454dc1093ca9e98e7',
-    tokenAbi: 'nope',
     forgottenSlug: 'forgottenruniversewatchersrings',
-    dataURI: 'https://api.runiverse.world/GetRingInfo?RingId=',
-    imageURI: 'https://raw.seadn.io/files/debfd109e4eec9478d9e174b9492f769.gif',
+  },
+  runiverseitems: {
+    tokenContract: '0xa3abf5552cc5e1477009bbf90d0b8d2689883891',
+    forgottenSlug: 'forgottenruniverseitems',
+    chain: 'arbitrum',
   },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,

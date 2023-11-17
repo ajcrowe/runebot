@@ -90,6 +90,13 @@ export class AppConfigService {
     return this.configService.get<CollectionConfig>('rings');
   }
 
+  /** 
+   * Items config
+   */
+  public get runiverseItems(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('runiverseitems');
+  }
+
   /**
    * Discord config
    */

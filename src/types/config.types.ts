@@ -20,6 +20,7 @@ export interface AppConfig {
   tricks: CollectionConfig;
   boxes: CollectionConfig;
   rings: CollectionConfig;
+  runiverseitems: CollectionConfig;
 }
 
 /**
@@ -28,7 +29,8 @@ export interface AppConfig {
 export interface BotConfig {
   salesCheckCron: string;
   salesLookbackSeconds: number;
-  forgottenApi: string;
+  reservoirApiMainnet: string;
+  reservoirApiArbitrum: string;
   redisUri: string;
   forgottenBaseURI: string;
 }
@@ -46,10 +48,11 @@ export interface EthereumConfig {
  */
 export interface CollectionConfig {
   tokenContract: string;
-  tokenAbi: string;
+  tokenAbi?: string;
   dataURI?: string;
   imageURI?: string;
   forgottenSlug?: string;
+  chain?: "arbitrum" | "ethereum";
 }
 
 /**

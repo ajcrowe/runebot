@@ -42,13 +42,23 @@ export class ForgottenMarketService extends MarketService {
         `Checking for sales ${collection.forgottenSlug}/Forgotten`,
       );
 
+      const headers = {
+        Accept: 'application/json',
+      };
+
+      if (collection.chain === 'arbitrum') {
+        headers['x-api-key'] = 'demo-api-key';
+      }
+
       const response: AxiosResponse = await axios.get(
-        `${this.configService.bot.forgottenApi}?includeTokenMetadata=true&collection=${collection.tokenContract}`,
+        `${
+          collection.chain === 'arbitrum'
+            ? this.configService.bot.reservoirApiArbitrum
+            : this.configService.bot.reservoirApiMainnet
+        }?includeTokenMetadata=true&collection=${collection.tokenContract}`,
         {
           method: 'get',
-          headers: {
-            Accept: 'application/json',
-          },
+
           timeout: 10000,
         },
       );
@@ -108,7 +118,7 @@ export class ForgottenMarketService extends MarketService {
         if (!thumbnail) {
           thumbnail = `${c.imageURI}/${sale.token.tokenId}.png`;
         }
-        
+
         try {
           sales.push({
             id: sale.token.tokenId,
