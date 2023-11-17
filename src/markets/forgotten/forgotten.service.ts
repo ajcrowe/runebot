@@ -94,8 +94,9 @@ export class ForgottenMarketService extends MarketService {
       if (time < this.configService.bot.salesLookbackSeconds) {
         // check if sale already in broadcast
         if (await this.cacheService.isCached(cacheKey)) {
-          break;
+          continue;
         }
+
         const buyerName = await this.etherService.getDomain(sale.to);
         const sellerName = await this.etherService.getDomain(sale.from);
 
@@ -115,6 +116,13 @@ export class ForgottenMarketService extends MarketService {
           name = item.name;
         }
 
+        // Ruinverse Items hack
+        if (name?.startsWith('Bronze Quantum Gift') || name?.startsWith('Silver Quantum Gift') ) {
+          continue;
+        }
+
+        name = name?.replace(/\(Item ID:.*\)$/, '');
+
         if (!thumbnail) {
           thumbnail = `${c.imageURI}/${sale.token.tokenId}.png`;
         }
@@ -122,7 +130,9 @@ export class ForgottenMarketService extends MarketService {
         try {
           sales.push({
             id: sale.token.tokenId,
-            title: `New Sale: ${name} (#${sale.token.tokenId})`,
+            title: `New Sale: ${name} ${
+              sale.token.tokenId.length < 8 ? `(#${sale.token.tokenId})` : ''
+            }`,
             tokenSymbol: sale.price.currency.symbol,
             tokenPrice: sale.price.amount.native,
             usdPrice: `(${sale.price.amount.usd.toFixed(2)} USD)`,
