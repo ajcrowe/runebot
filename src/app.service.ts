@@ -34,7 +34,8 @@ export class AppService {
           this.configService.beast,
           this.configService.spawn,
           this.configService.rings,
-          this.configService.runiverseItems
+          this.configService.runiverseItems,
+          this.configService.athenaeum,
         ]);
         
       },

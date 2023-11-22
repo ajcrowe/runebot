@@ -105,6 +105,10 @@ export default (): AppConfig => ({
     forgottenSlug: 'forgottenruniverseitems',
     chain: 'arbitrum',
   },
+  athenaeum: {
+    tokenContract: '0x7c104b4db94494688027cced1e2ebfb89642c80f',
+    forgottenSlug: 'athenaeum',
+  },
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,
     salesChannelIds: process.env.DISCORD_SALES_CHANNEL_IDS.split(',') || [],

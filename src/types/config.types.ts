@@ -20,6 +20,7 @@ export interface AppConfig {
   tricks: CollectionConfig;
   boxes: CollectionConfig;
   rings: CollectionConfig;
+  athenaeum: CollectionConfig;
   runiverseitems: CollectionConfig;
 }
 
@@ -52,7 +53,7 @@ export interface CollectionConfig {
   dataURI?: string;
   imageURI?: string;
   forgottenSlug?: string;
-  chain?: "arbitrum" | "ethereum";
+  chain?: 'arbitrum' | 'ethereum';
 }
 
 /**

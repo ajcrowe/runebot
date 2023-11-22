@@ -98,6 +98,13 @@ export class AppConfigService {
   }
 
   /**
+   * Athenaeum config
+   */
+  public get athenaeum(): CollectionConfig {
+    return this.configService.get<CollectionConfig>('athenaeum');
+  }
+
+  /**
    * Discord config
    */
   public get discord(): DiscordConfig {
