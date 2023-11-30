@@ -130,7 +130,7 @@ export class ForgottenMarketService extends MarketService {
         try {
           sales.push({
             id: sale.token.tokenId,
-            title: `${sale.orderSize === "bid" ? "Bid Sale" :  "Sale"}: ${name} ${
+            title: `${sale.orderSide === "bid" ? "Bid Sale" :  "Sale"}: ${name} ${
               sale.token.tokenId.length < 8 ? `(#${sale.token.tokenId})` : ''
             }`,
             tokenSymbol: sale.price.currency.symbol,
