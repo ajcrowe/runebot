@@ -117,7 +117,10 @@ export class ForgottenMarketService extends MarketService {
         }
 
         // Ruinverse Items hack
-        if (name?.startsWith('Bronze Quantum Gift') || name?.startsWith('Silver Quantum Gift') ) {
+        if (
+          name?.startsWith('Bronze Quantum Gift') ||
+          name?.startsWith('Silver Quantum Gift')
+        ) {
           continue;
         }
 
@@ -130,9 +133,9 @@ export class ForgottenMarketService extends MarketService {
         try {
           sales.push({
             id: sale.token.tokenId,
-            title: `${sale.orderSide === "bid" ? "Bid Sale" :  "Sale"}: ${name} ${
+            title: `${name} ${
               sale.token.tokenId.length < 8 ? `(#${sale.token.tokenId})` : ''
-            }`,
+            } ${sale.orderSide === 'bid' ? '🔴' : '🟢'}`,
             tokenSymbol: sale.price.currency.symbol,
             tokenPrice: sale.price.amount.native,
             usdPrice: `(${sale.price.amount.usd.toFixed(2)} USD)`,
