@@ -272,6 +272,7 @@ export interface Sale {
   backgroundColor: string;
   market: string;
   marketIcon: string;
+  creatorRoyalties?: string;
 }
 
 export enum Market {

@@ -101,6 +101,11 @@ export class DiscordService {
         inline: false,
       },
       {
+        name: 'Royalties',
+        value: `${sale.creatorRoyalties} ${sale.tokenSymbol}`,
+        inline: false,
+      },
+      {
         name: 'Buyer',
         value: `[${sale.buyerAddr.slice(0, -34)}](${
           this.configService.bot.forgottenBaseURI

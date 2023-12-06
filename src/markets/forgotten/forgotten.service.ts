@@ -14,6 +14,8 @@ import { EthereumService } from '../../ethereum';
 import { DataStoreService } from '../../datastore';
 import { CacheService } from '../../cache';
 import axios, { AxiosResponse } from 'axios';
+import { BigNumber  } from 'ethers';
+import { formatEther } from 'ethers/lib/utils';
 
 @Injectable()
 export class ForgottenMarketService extends MarketService {
@@ -130,6 +132,16 @@ export class ForgottenMarketService extends MarketService {
           thumbnail = `${c.imageURI}/${sale.token.tokenId}.png`;
         }
 
+        // sum up royalties
+        let royalties = BigNumber.from(0);
+        if (sale.feeBreakdown) {
+          for (const fee of sale.feeBreakdown) {
+            if (fee.kind === 'royalty') {
+              royalties.add(BigNumber.from(fee.rawAmount));
+            }
+          }
+        }
+
         try {
           sales.push({
             id: sale.token.tokenId,
@@ -150,6 +162,7 @@ export class ForgottenMarketService extends MarketService {
             backgroundColor: '000000',
             market: market.name,
             marketIcon: market.icon,
+            creatorRoyalties: formatEther(royalties),
           });
         } catch (err) {
           this._logger.error(`${err}  ${market}`);
