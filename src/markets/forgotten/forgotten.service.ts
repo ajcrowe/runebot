@@ -14,7 +14,7 @@ import { EthereumService } from '../../ethereum';
 import { DataStoreService } from '../../datastore';
 import { CacheService } from '../../cache';
 import axios, { AxiosResponse } from 'axios';
-import { BigNumber  } from 'ethers';
+import { BigNumber } from 'ethers';
 import { formatEther } from 'ethers/lib/utils';
 
 @Injectable()
@@ -136,7 +136,11 @@ export class ForgottenMarketService extends MarketService {
         let royalties = BigNumber.from(0);
         if (sale.feeBreakdown) {
           for (const fee of sale.feeBreakdown) {
-            if (fee.kind === 'royalty') {
+            if (
+              fee.kind === 'royalty' ||
+              fee?.recipient?.toLowerCase() ===
+                '0xc4fd73a45738291853a0937a31554f9a1dc42903'.toLowerCase() // special fee recipient override for gnosis safe (should make configurable)
+            ) {
               royalties.add(BigNumber.from(fee.rawAmount));
             }
           }
@@ -162,7 +166,10 @@ export class ForgottenMarketService extends MarketService {
             backgroundColor: '000000',
             market: market.name,
             marketIcon: market.icon,
-            creatorRoyalties: formatEther(royalties),
+            creatorRoyalties: royalties
+              .div(BigNumber.from(sale.price.amount.raw))
+              .mul(BigNumber.from(100))
+              .toString(),
           });
         } catch (err) {
           this._logger.error(`${err}  ${market}`);

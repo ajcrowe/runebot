@@ -102,7 +102,7 @@ export class DiscordService {
       },
       {
         name: 'Royalties',
-        value: `${sale.creatorRoyalties} ${sale.tokenSymbol}`,
+        value: `${sale.creatorRoyalties}%`,
         inline: false,
       },
       {
