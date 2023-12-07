@@ -138,7 +138,7 @@ export class ForgottenMarketService extends MarketService {
           for (const fee of sale.feeBreakdown) {
             if (
               fee.kind === 'royalty' ||
-              fee?.recipient?.toLowerCase() ===
+              fee.recipient.toLowerCase() ===
                 '0xc4fd73a45738291853a0937a31554f9a1dc42903'.toLowerCase() // special fee recipient override for gnosis safe (should make configurable)
             ) {
               royalties.add(BigNumber.from(fee.rawAmount));
@@ -166,10 +166,11 @@ export class ForgottenMarketService extends MarketService {
             backgroundColor: '000000',
             market: market.name,
             marketIcon: market.icon,
-            creatorRoyalties: royalties
-              .div(BigNumber.from(sale.price.amount.raw))
-              .mul(BigNumber.from(100))
-              .toString(),
+            creatorRoyalties:
+              (royalties
+                .mul(BigNumber.from(10000))
+                .div(BigNumber.from(sale.price.amount.raw))
+                .toNumber() / 100).toString(),
           });
         } catch (err) {
           this._logger.error(`${err}  ${market}`);
