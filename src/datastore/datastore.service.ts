@@ -17,6 +17,7 @@ import {
   WarriorAttrName,
   Trait,
   Item,
+  InfinityVeil,
 } from 'src/types';
 import { AppConfigService } from '../config';
 import { EmbedFieldData } from 'discord.js';

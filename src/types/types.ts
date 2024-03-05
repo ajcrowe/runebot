@@ -154,6 +154,16 @@ export interface Warrior {
 }
 
 /**
+ * InfinityVeil
+ */
+export interface InfinityVeil {
+  name: string;
+  serial: string;
+  traits: any[];
+  backgroundColor: string;
+}
+
+/**
  * Soul Attribute names
  */
 export enum WarriorAttrName {
@@ -273,6 +283,25 @@ export interface Sale {
   market: string;
   marketIcon: string;
   creatorRoyalties?: string;
+}
+
+/**
+ * Listing type
+ */
+export interface Listing {
+  id: string;
+  title: string;
+  tokenSymbol: string;
+  tokenPrice: number;
+  usdPrice?: string;
+  sellerAddr: string;
+  sellerName?: string;
+  permalink: string;
+  thumbnail: string;
+  backgroundColor: string;
+  cacheKey: string;
+  market: string;
+  marketIcon: string;
 }
 
 export enum Market {

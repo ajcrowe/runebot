@@ -5,8 +5,11 @@ export default (): AppConfig => ({
     salesCheckCron: process.env.SALES_CHECK_CRON || '*/1 * * * *',
     salesLookbackSeconds: Number(process.env.SALES_LOOKBACK) || 900,
     redisUri: process.env.REDIS_URL || 'redis://localhost:6379',
-    reservoirApiMainnet: 'https://forgotten.market/api/sales/v6',
-    reservoirApiArbitrum: 'https://api-arbitrum.reservoir.tools/sales/v6', // TODO: switch to our paid version?
+    reservoirSalesApiMainnet: 'https://forgotten.market/api/sales/v6',
+    reservoirSalesApiArbitrum: 'https://api-arbitrum.reservoir.tools/sales/v6', // TODO: switch to our paid version?
+    reservoirAsksApiMainnet: 'https://forgotten.market/api/orders/asks/v5',
+    reservoirAsksApiArbitrum:
+      'https://api-arbitrum.reservoir.tools/orders/asks/v5',
     forgottenBaseURI: 'https://forgotten.market',
   },
   wizard: {
@@ -112,6 +115,8 @@ export default (): AppConfig => ({
   discord: {
     token: process.env.DISCORD_BOT_TOKEN,
     salesChannelIds: process.env.DISCORD_SALES_CHANNEL_IDS.split(',') || [],
+    listingsChannelIds:
+      process.env.DISCORD_LISTINGS_CHANNEL_IDS.split(',') || [],
     prefix: process.env.DISCORD_PREFIX || '#',
   },
   ethereum: {

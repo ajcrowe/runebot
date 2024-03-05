@@ -37,14 +37,28 @@ export class AppService {
           this.configService.runiverseItems,
           this.configService.athenaeum,
         ]);
-        
+
+        this._logger.log(`Running Listings Checker Job`);
+        this._discord.checkListings([
+          this.configService.wizard,
+          this.configService.soul,
+          this.configService.warrior,
+          this.configService.pony,
+          this.configService.flame,
+          this.configService.lock,
+          this.configService.beast,
+          this.configService.spawn,
+          this.configService.rings,
+          this.configService.runiverseItems,
+          this.configService.athenaeum,
+        ]);
       },
     );
 
     this._schedulerRegistry.addCronJob(CronJobs.SALES_CHECKER, salesChecker);
     salesChecker.start();
     this._logger.log(
-      `Sales checker cron job started. Cron pattern: ${this.configService.bot.salesCheckCron}`,
+      `Marketplace checker cron job started. Cron pattern: ${this.configService.bot.salesCheckCron}`,
     );
   }
 }

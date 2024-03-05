@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '../config';
 import { EthereumService } from 'src/ethereum';
-import Discord, { TextChannel, MessageEmbed } from 'discord.js';
+import Discord, { TextChannel, MessageEmbed, EmbedFieldData } from 'discord.js';
 import toRegexRange from 'to-regex-range';
-import { CollectionConfig, Wizard, Sale, Item } from 'src/types';
+import { CollectionConfig, Wizard, Sale, Item, Listing } from 'src/types';
 import { ForgottenMarketService } from 'src/markets';
 import { DataStoreService } from '../datastore';
 import { CacheService } from 'src/cache';
@@ -15,6 +15,7 @@ export class DiscordService {
   private readonly _rangeRegex = new RegExp(`^${toRegexRange('0', '9999')}$`);
 
   protected _salesChannels: Array<TextChannel>;
+  protected _listingsChannels: Array<TextChannel>;
   protected _recentTransactions: Array<string>;
 
   get name(): string {
@@ -37,9 +38,60 @@ export class DiscordService {
           (await this._client.channels.fetch(channelId)) as TextChannel,
         );
       }
+      this._listingsChannels = [];
+      for (const channelId of this.configService.discord.listingsChannelIds) {
+        this._listingsChannels.push(
+          (await this._client.channels.fetch(channelId)) as TextChannel,
+        );
+      }
       this._recentTransactions = [];
     });
     this.channelWatcher();
+  }
+
+  /**
+   * Check for Listings
+   */
+  public async checkListings(cs: CollectionConfig[]): Promise<void> {
+    for (const c of cs) {
+      await this.postListings(await this.forgottenMarket.getListings(c));
+    }
+  }
+
+  /**
+   * Post Listings
+   */
+  public async postListings(listings: Listing[]): Promise<void> {
+    for (const listing of listings) {
+      console.log('listing', listing);
+      const embed = new MessageEmbed()
+        .setColor(listing.backgroundColor)
+        .setTitle(listing.title)
+        .setURL(listing.permalink)
+        .setThumbnail(listing.thumbnail)
+        .addFields(this.getListingFields(listing))
+        .setFooter(listing.market, listing.marketIcon);
+
+      if (await this.cacheService.isCached(listing.cacheKey)) {
+        break;
+      } else {
+        await this.cacheService.cacheSale(listing.cacheKey);
+      }
+      await this.postListing(embed);
+    }
+  }
+
+  /**
+   * Post Listing
+   */
+  public async postListing(embed: MessageEmbed): Promise<void> {
+    for (const channel of this._listingsChannels) {
+      try {
+        await channel.send(embed);
+      } catch (err) {
+        this._logger.error(err);
+      }
+    }
   }
 
   /**
@@ -75,7 +127,7 @@ export class DiscordService {
         .setTitle(sale.title)
         .setURL(sale.permalink)
         .setThumbnail(sale.thumbnail)
-        .addFields(this.getStandardFields(sale))
+        .addFields(this.getSaleFields(sale))
         .setFooter(sale.market, sale.marketIcon);
 
       if (await this.cacheService.isCached(sale.cacheKey)) {
@@ -91,7 +143,7 @@ export class DiscordService {
    * get standard fields for each sale
    */
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  public getStandardFields(sale: Sale): any[] {
+  public getSaleFields(sale: Sale): any[] {
     return [
       {
         name: 'Amount',
@@ -117,6 +169,25 @@ export class DiscordService {
         value: `[${sale.sellerAddr.slice(0, -34)}](${
           this.configService.bot.forgottenBaseURI
         }/address/${sale.sellerAddr}) ${sale.sellerName}`,
+        inline: true,
+      },
+    ];
+  }
+
+  public getListingFields(listing: Listing): EmbedFieldData[] {
+    return [
+      {
+        name: 'Price',
+        value: `${listing.tokenPrice.toFixed(2)} ${listing.tokenSymbol} ${
+          listing.usdPrice
+        }`,
+        inline: false,
+      },
+      {
+        name: 'From',
+        value: `[${listing.sellerAddr.slice(0, -34)}](${
+          this.configService.bot.forgottenBaseURI
+        }/address/${listing.sellerAddr}) ${listing.sellerName}`,
         inline: true,
       },
     ];

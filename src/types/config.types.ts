@@ -30,8 +30,10 @@ export interface AppConfig {
 export interface BotConfig {
   salesCheckCron: string;
   salesLookbackSeconds: number;
-  reservoirApiMainnet: string;
-  reservoirApiArbitrum: string;
+  reservoirSalesApiMainnet: string;
+  reservoirSalesApiArbitrum: string;
+  reservoirAsksApiMainnet: string;
+  reservoirAsksApiArbitrum: string;
   redisUri: string;
   forgottenBaseURI: string;
 }
@@ -62,6 +64,7 @@ export interface CollectionConfig {
 export interface DiscordConfig {
   token: string;
   salesChannelIds: Array<string>;
+  listingsChannelIds: Array<string>;
   prefix: string;
 }
 

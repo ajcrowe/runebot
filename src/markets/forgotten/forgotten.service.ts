@@ -6,6 +6,7 @@ import {
   MarketMetaData,
   MarketURI,
   Item,
+  Listing,
 } from 'src/types';
 import { MarketService } from '../market.service';
 import { Injectable, Logger } from '@nestjs/common';
@@ -15,7 +16,6 @@ import { DataStoreService } from '../../datastore';
 import { CacheService } from '../../cache';
 import axios, { AxiosResponse } from 'axios';
 import { BigNumber } from 'ethers';
-import { formatEther } from 'ethers/lib/utils';
 
 @Injectable()
 export class ForgottenMarketService extends MarketService {
@@ -32,6 +32,46 @@ export class ForgottenMarketService extends MarketService {
 
   get name(): string {
     return 'ForgottenMarketService';
+  }
+
+  /**
+   * Get OS listings for specific collection
+   */
+  public async getListings(collection: CollectionConfig): Promise<Listing[]> {
+    let items: Array<Listing> = [];
+    try {
+      this._logger.log(
+        `Checking for listings ${collection.forgottenSlug}/Forgotten`,
+      );
+
+      // https://forgotten.market/api/orders/asks/v5?tokenSetId=contract:0x9690b63eb85467be5267a3603f770589ab12dc95
+      const response: AxiosResponse = await axios.get(
+        `${
+          collection.chain === 'arbitrum'
+            ? this.configService.bot.reservoirAsksApiArbitrum
+            : this.configService.bot.reservoirAsksApiMainnet
+        }?tokenSetId=contract:${collection.tokenContract}`,
+        {
+          method: 'get',
+
+          timeout: 10000,
+        },
+      );
+      if (response.data.orders.length) {
+        items = await this.createListings(response.data.orders, collection);
+        this._logger.log(
+          `Found ${items.length} listings ${collection.forgottenSlug}/Forgotten`,
+        );
+      } else {
+        this._logger.log(`No listings ${collection.forgottenSlug}/Forgotten`);
+      }
+    } catch (err) {
+      this._logger.error(
+        `${err} (${collection.forgottenSlug}/Forgotten) listings`,
+      );
+    } finally {
+      return items.reverse();
+    }
   }
 
   /**
@@ -55,8 +95,8 @@ export class ForgottenMarketService extends MarketService {
       const response: AxiosResponse = await axios.get(
         `${
           collection.chain === 'arbitrum'
-            ? this.configService.bot.reservoirApiArbitrum
-            : this.configService.bot.reservoirApiMainnet
+            ? this.configService.bot.reservoirSalesApiArbitrum
+            : this.configService.bot.reservoirSalesApiMainnet
         }?includeTokenMetadata=true&collection=${collection.tokenContract}`,
         {
           method: 'get',
@@ -73,7 +113,9 @@ export class ForgottenMarketService extends MarketService {
         this._logger.log(`No sales ${collection.forgottenSlug}/Forgotten`);
       }
     } catch (err) {
-      this._logger.error(`${err} (${collection.forgottenSlug}/Forgotten)`);
+      this._logger.error(
+        `${err} (${collection.forgottenSlug}/Forgotten) sales`,
+      );
     } finally {
       return sales.reverse();
     }
@@ -133,7 +175,7 @@ export class ForgottenMarketService extends MarketService {
         }
 
         // sum up royalties
-        let royalties = BigNumber.from(0);
+        const royalties = BigNumber.from(0);
         if (sale.feeBreakdown) {
           for (const fee of sale.feeBreakdown) {
             if (
@@ -166,11 +208,12 @@ export class ForgottenMarketService extends MarketService {
             backgroundColor: '000000',
             market: market.name,
             marketIcon: market.icon,
-            creatorRoyalties:
-              (royalties
+            creatorRoyalties: (
+              royalties
                 .mul(BigNumber.from(10000))
                 .div(BigNumber.from(sale.price.amount.raw))
-                .toNumber() / 100).toString(),
+                .toNumber() / 100
+            ).toString(),
           });
         } catch (err) {
           this._logger.error(`${err}  ${market}`);
@@ -179,6 +222,79 @@ export class ForgottenMarketService extends MarketService {
       }
     }
     return sales.reverse();
+  }
+
+  /**
+   *  Process json into Listing[] object
+   */
+  async createListings(
+    forgottenListings: any[],
+    c: CollectionConfig,
+  ): Promise<Listing[]> {
+    const listings: Array<Listing> = [];
+    for (const listing of forgottenListings) {
+      const market: MarketMetaData = await this.getMarketMetaData(
+        listing.source.domain,
+      );
+      const [, , tokenId] = listing.tokenSetId.split(':');
+      const cacheKey = `${listing.txHash}:${listing.id}`;
+      const time =
+        Date.now() / 1000 - new Date(listing.updatedAt).getTime() / 1000;
+      if (time < this.configService.bot.salesLookbackSeconds) {
+        // check if sale already in broadcast
+        if (await this.cacheService.isCached(cacheKey)) {
+          continue;
+        }
+
+        const sellerName = await this.etherService.getDomain(listing.maker);
+
+        this._logger.log(`No name  in sale data, fetching individually`);
+
+        const item: Item = await this.dataStoreService.getItemByContract(
+          tokenId,
+          c.tokenContract,
+        );
+
+        this._logger.debug(item);
+
+        let name = item.name;
+
+        // Runiverse Items hack
+        if (
+          name?.startsWith('Bronze Quantum Gift') ||
+          name?.startsWith('Silver Quantum Gift')
+        ) {
+          continue;
+        }
+
+        name = name?.replace(/\(Item ID:.*\)$/, '');
+
+        const thumbnail = `${c.imageURI}/${tokenId}.png`;
+
+        this._logger.log(`Listing: ${JSON.stringify(listing)}`);
+        try {
+          listings.push({
+            id: tokenId,
+            title: `${name} ${tokenId.length < 8 ? `(#${tokenId})` : ''}`,
+            tokenSymbol: listing.price.currency.symbol,
+            tokenPrice: listing.price.amount.native,
+            usdPrice: `(${listing.price.amount.usd.toFixed(2)} USD)`,
+            sellerAddr: listing.maker,
+            sellerName: sellerName ? `(${sellerName})` : ``,
+            cacheKey,
+            permalink: `https://forgotten.market/${c.tokenContract}/${tokenId}`,
+            thumbnail,
+            backgroundColor: '000000',
+            market: market.name,
+            marketIcon: market.icon,
+          });
+        } catch (err) {
+          this._logger.error(`${err}  ${market}`);
+          this._logger.debug(market);
+        }
+      }
+    }
+    return listings.reverse();
   }
 
   async getMarketMetaData(marketName: string): Promise<MarketMetaData> {
